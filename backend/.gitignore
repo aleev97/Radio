@@ -1,0 +1,46 @@
+# Ignorar archivos generados por el sistema operativo
+.DS_Store
+
+# Carpeta de dependencias o módulos de Node.js
+node_modules/
+
+# Carpeta de dependencias de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivo de configuración del entorno
+.env
+
+# Archivos de logs
+logs/
+*.log
+
+# Archivos de compilación
+dist/
+build/
+*.jar
+*.war
+*.ear
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Archivos de usuario o configuración específica del IDE
+.idea/
+.vscode/
+
+# Archivos de respaldo
+*.bak
+*.backup
+*.swp
+
+# Archivos de resultados de pruebas
+test-results/
+
+# Archivos de configuración personal
+config.json
+
+# Otros archivos o carpetas específicos de tu proyecto
