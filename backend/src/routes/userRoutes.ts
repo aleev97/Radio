@@ -12,8 +12,9 @@ userRoutes.post('/login', UserController.loginUser);
 userRoutes.use(AuthMiddleware.authenticate);
 
 // Rutas de restablecimiento de contraseña (públicas)
-userRoutes.post('/reset-password', UserController.requestPasswordReset);
+userRoutes.post('/request-reset-password', UserController.requestPasswordReset);
 userRoutes.post('/reset-password', UserController.resetPassword);
+
 
 // Rutas protegidas 
 userRoutes.get('/', UserController.getUsers);
