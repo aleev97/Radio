@@ -49,46 +49,67 @@ const PublicationController = {
             const publicationId = parseInt(req.params.id, 10);
             const { content } = req.body;
             const file = req.file;
-
+    
             const existingPublication = await pool.query(
                 'SELECT * FROM publications WHERE id = $1',
                 [publicationId]
             );
-
+    
             if (existingPublication.rows.length === 0) {
                 return res.status(404).json({ error: 'Publication not found' });
             }
-
+    
             const updatePublication = {
                 content,
                 file_paths: existingPublication.rows[0].file_paths as string[],
             };
-
+    
+            let originalMediaUrls: string[] = [];
             if (file) {
+                // Almacena los archivos originales antes de actualizarlos
+                originalMediaUrls = [...updatePublication.file_paths];
+    
+                // Guardar el nuevo archivo
                 const fileBuffer = file.buffer;
                 const newMediaUrl = `/uploads/${file.originalname}`;
-                updatePublication.file_paths.push(newMediaUrl);
-
-                // Guardar la nueva imagen en el sistema de archivos
+                updatePublication.file_paths = [newMediaUrl];
+    
+                // Guardar la imagen en el sistema de archivos
                 const uploadPath = path.join(__dirname, '../uploads', file.originalname);
                 fs.writeFileSync(uploadPath, fileBuffer);
             }
-
+    
             const result = await pool.query(
                 'UPDATE publications SET content = $1, file_paths = $2 WHERE id = $3 RETURNING *',
                 [updatePublication.content, updatePublication.file_paths, publicationId]
             );
-
+    
             if (result.rows.length === 0) {
                 res.status(404).json({ error: 'Publication not found' });
             } else {
+                // Eliminar archivos originales después de que la actualización sea exitosa
+                originalMediaUrls.forEach((originalMediaUrl) => {
+                    if (!updatePublication.file_paths.includes(originalMediaUrl)) {
+                        const originalFileName = path.basename(originalMediaUrl);
+                        const originalFilePath = path.join(__dirname, '../uploads', originalFileName);
+    
+                        // Verifica que el archivo exista antes de intentar eliminarlo
+                        if (fs.existsSync(originalFilePath)) {
+                            fs.unlinkSync(originalFilePath);
+                            console.log(`Archivo original eliminado: ${originalFilePath}`);
+                        } else {
+                            console.warn(`No se encontró el archivo original: ${originalFilePath}`);
+                        }
+                    }
+                });
+    
                 res.json(result.rows[0]);
             }
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
-    },
+    },    
 
     deletePublication: async (req: Request, res: Response) => {
         try {
