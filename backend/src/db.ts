@@ -14,7 +14,12 @@ const pool = new Pool({
 const query = async (text: string, params: any[] = []): Promise<QueryResult> => {
   const client = await pool.connect();
   try {
-    return await client.query(text, params);
+    const result = await client.query(text, params);
+    return result;
+  } catch (error: any) {  // Tipo explícito para la variable error
+    // Manejo de errores aquí
+    console.error('Error executing query:', error.message);
+    throw error;
   } finally {
     client.release();
   }

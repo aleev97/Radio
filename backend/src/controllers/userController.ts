@@ -46,7 +46,7 @@ const sendPasswordResetEmail = async (email: string, resetToken: string) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: email, 
+      to: email,
       subject: 'Restablecimiento de contraseña',
       text: `Haz clic en el siguiente enlace para restablecer tu contraseña: http://radio.com/reset-password?token=${resetToken}`,
     };
@@ -97,25 +97,30 @@ const UserController = {
     try {
       const { username, password } = req.body;
       const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-
+  
       if (result.rows.length === 0) {
         return res.status(401).json({ error: 'Invalid username or password' });
       }
-
+  
       const user: User = result.rows[0];
       const passwordMatch = await AuthMiddleware.comparePasswords(password, user.password);
-
+  
       if (!passwordMatch) {
         return res.status(401).json({ error: 'Invalid username or password' });
       }
-
+  
+      // Genera el token
       const token = AuthMiddleware.generateToken({ id: user.id, username: user.username, isadmin: user.isadmin });
+  
+      // Configura el token como una cookie (ejemplo utilizando el paquete cookie)
+      res.cookie('token', token, { httpOnly: true, secure: true }); // Ajusta las opciones según tus necesidades de seguridad
+  
       res.json({ token });
     } catch (error) {
       handleServerError(res, error);
     }
-  },
-
+  },  
+  
   getUsers: async (req: Request, res: Response) => {
     try {
       const result = await pool.query('SELECT * FROM users');

@@ -1,12 +1,55 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import userRoutes from './routes/index';
+import path from 'path';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import multer from 'multer';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware para parsear el cuerpo de las solicitudes a formato JSON
+// Configuración multer para la subida de archivos
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, 'uploads'),
+  filename: (req, file, cb) => {
+    const uniquePrefix = file.fieldname + '-' + Date.now();
+    cb(null, uniquePrefix + '-' + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
 app.use(bodyParser.json());
+app.use(cookieParser());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  })
+);
+
+app.post('/api/uploads', upload.single('file'), (req, res) => {
+  try {
+    // Comprobar si se subió correctamente
+    if (!req.file) {
+      throw new Error('No file uploaded');
+    }
+    // Obtener detalles del archivo subido
+    const uploadedFileName = req.file.originalname;
+    const fileUrl = `/uploads/${encodeURIComponent(uploadedFileName)}`; // Agregado encodeURIComponent
+
+    res.json({ message: 'File uploaded successfully', fileUrl });
+  } catch (error) {
+    console.error('Error during file upload:', error);
+    let errorMessage = 'File upload failed';
+
+    res.status(500).json({ error: errorMessage });
+  }
+});
 
 app.get('/', (req, res) => {
   res.send('Welcome to the Radio App API!');
@@ -14,11 +57,11 @@ app.get('/', (req, res) => {
 
 app.use('/api', userRoutes);
 
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, req: express.Request, res: express.Response, nxt: express.NextFunction) => {
   console.error(err.stack);
-  res.status(500).send('Something went wrong!');
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-}); 
+});

@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import pool from '../db';
 import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -11,21 +13,28 @@ const PublicationController = {
             const { user_id, content } = req.body;
             const file = req.file;
 
+            // Validación de campos obligatorios
+            if (!user_id || !content || !file) {
+                return res.status(400).json({ error: 'User ID, content, and file are required' });
+            }
+
             const newPublication = {
                 user_id,
                 content,
-                media_url: [] as string[],
+                file_paths: [] as string[],
             };
 
-            if (file) {
-                const fileBuffer = file.buffer;
-                const media_url = `/uploads/${file.originalname}`;
-                newPublication.media_url.push(media_url);
-            }
+            const fileBuffer = file.buffer;
+            const media_url = `/uploads/${file.originalname}`;
+            newPublication.file_paths.push(media_url);
+
+            // Guardar la imagen en el sistema de archivos
+            const uploadPath = path.join(__dirname, '../uploads', file.originalname);
+            fs.writeFileSync(uploadPath, fileBuffer);
 
             const result = await pool.query(
-                'INSERT INTO publications(user_id, content, media_url) VALUES($1, $2, $3) RETURNING *',
-                [newPublication.user_id, newPublication.content, newPublication.media_url]
+                'INSERT INTO publications(user_id, content, file_paths) VALUES($1, $2, $3) RETURNING *',
+                [newPublication.user_id, newPublication.content, newPublication.file_paths]
             );
 
             res.json(result.rows[0]);
@@ -52,18 +61,22 @@ const PublicationController = {
 
             const updatePublication = {
                 content,
-                media_url: existingPublication.rows[0].media_url as string[],
+                file_paths: existingPublication.rows[0].file_paths as string[],
             };
 
             if (file) {
                 const fileBuffer = file.buffer;
                 const newMediaUrl = `/uploads/${file.originalname}`;
-                updatePublication.media_url = [newMediaUrl];
+                updatePublication.file_paths.push(newMediaUrl);
+
+                // Guardar la nueva imagen en el sistema de archivos
+                const uploadPath = path.join(__dirname, '../uploads', file.originalname);
+                fs.writeFileSync(uploadPath, fileBuffer);
             }
 
             const result = await pool.query(
-                'UPDATE publications SET content = $1, media_url = $2 WHERE id = $3 RETURNING *',
-                [updatePublication.content, updatePublication.media_url, publicationId]
+                'UPDATE publications SET content = $1, file_paths = $2 WHERE id = $3 RETURNING *',
+                [updatePublication.content, updatePublication.file_paths, publicationId]
             );
 
             if (result.rows.length === 0) {
@@ -81,6 +94,7 @@ const PublicationController = {
         try {
             const publicationId = parseInt(req.params.id, 10);
 
+            // Obtén la información de la publicación antes de eliminarla
             const result = await pool.query(
                 'DELETE FROM publications WHERE id = $1 RETURNING *',
                 [publicationId]
@@ -89,8 +103,61 @@ const PublicationController = {
             if (result.rows.length === 0) {
                 res.status(404).json({ error: 'Publication not found' });
             } else {
+                // Elimina el archivo asociado
+                const mediaUrls = result.rows[0].file_paths as string[];
+
+                mediaUrls.forEach((mediaUrl) => {
+                    const fileName = path.basename(mediaUrl);
+                    const filePath = path.join(__dirname, '../uploads', fileName);
+
+                    // Verifica que el archivo exista antes de intentar eliminarlo
+                    if (fs.existsSync(filePath)) {
+                        try {
+                            fs.unlinkSync(filePath);
+                            console.log(`Archivo eliminado: ${filePath}`);
+                        } catch (error) {
+                            console.error(`Error al eliminar archivo ${filePath}:`, error);
+                        }
+                    } else {
+                        console.warn(`No se encontró el archivo: ${filePath}`);
+                    }
+                });
+
                 res.json({ message: 'Publication deleted successfully', deletePublication: result.rows[0] });
             }
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    },    
+
+    PublicationById: async (req: Request, res: Response) => {
+        try {
+            const publicationId = parseInt(req.params.id, 10);
+
+            const result = await pool.query(
+                'SELECT * FROM publications WHERE id = $1',
+                [publicationId]
+            );
+
+            if (result.rows.length === 0) {
+                res.status(404).json({ error: 'Publication not found' });
+            } else {
+                res.json(result.rows[0]);
+            }
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    },
+
+    AllPublications: async (req: Request, res: Response) => {
+        try {
+            const result = await pool.query(
+                'SELECT * FROM publications'
+            );
+
+            res.json(result.rows);
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });

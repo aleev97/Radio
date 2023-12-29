@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.6",
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/multer": "^1.4.11",
@@ -29,6 +30,7 @@
     "@types/sequelize": "^4.28.19",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
