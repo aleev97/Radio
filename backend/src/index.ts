@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import userRoutes from './routes/index';
 import path from 'path';
@@ -20,6 +20,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// Middlewares
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -32,15 +33,16 @@ app.use(
   })
 );
 
-app.post('/api/uploads', upload.single('file'), (req, res) => {
+app.post('/api/uploads', upload.single('file'), async (req: Request, res: Response) => {
   try {
     // Comprobar si se subió correctamente
     if (!req.file) {
       throw new Error('No file uploaded');
     }
+
     // Obtener detalles del archivo subido
     const uploadedFileName = req.file.originalname;
-    const fileUrl = `/uploads/${encodeURIComponent(uploadedFileName)}`; // Agregado encodeURIComponent
+    const fileUrl = `/uploads/${encodeURIComponent(uploadedFileName)}`;
 
     res.json({ message: 'File uploaded successfully', fileUrl });
   } catch (error) {
@@ -51,13 +53,13 @@ app.post('/api/uploads', upload.single('file'), (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to the Radio App API!');
 });
 
 app.use('/api', userRoutes);
 
-app.use((err: any, req: express.Request, res: express.Response, nxt: express.NextFunction) => {
+app.use((err: any, req: Request, res: Response, nxt: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });

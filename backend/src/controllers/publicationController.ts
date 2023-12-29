@@ -7,6 +7,12 @@ import fs from 'fs';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+interface Publication {
+    user_id: number;
+    content: string;
+    file_paths: string[];
+}
+
 const PublicationController = {
     createPublication: async (req: Request, res: Response) => {
         try {
@@ -18,10 +24,10 @@ const PublicationController = {
                 return res.status(400).json({ error: 'User ID, content, and file are required' });
             }
 
-            const newPublication = {
+            const newPublication: Publication = {
                 user_id,
                 content,
-                file_paths: [] as string[],
+                file_paths: [],
             };
 
             const fileBuffer = file.buffer;
@@ -59,22 +65,19 @@ const PublicationController = {
                 return res.status(404).json({ error: 'Publication not found' });
             }
     
-            const updatePublication = {
+            const updatePublication: Publication = {
                 content,
                 file_paths: existingPublication.rows[0].file_paths as string[],
+                user_id: 0
             };
     
             let originalMediaUrls: string[] = [];
             if (file) {
-                // Almacena los archivos originales antes de actualizarlos
                 originalMediaUrls = [...updatePublication.file_paths];
-    
-                // Guardar el nuevo archivo
                 const fileBuffer = file.buffer;
                 const newMediaUrl = `/uploads/${file.originalname}`;
                 updatePublication.file_paths = [newMediaUrl];
     
-                // Guardar la imagen en el sistema de archivos
                 const uploadPath = path.join(__dirname, '../uploads', file.originalname);
                 fs.writeFileSync(uploadPath, fileBuffer);
             }
@@ -87,19 +90,10 @@ const PublicationController = {
             if (result.rows.length === 0) {
                 res.status(404).json({ error: 'Publication not found' });
             } else {
-                // Eliminar archivos originales después de que la actualización sea exitosa
                 originalMediaUrls.forEach((originalMediaUrl) => {
                     if (!updatePublication.file_paths.includes(originalMediaUrl)) {
-                        const originalFileName = path.basename(originalMediaUrl);
-                        const originalFilePath = path.join(__dirname, '../uploads', originalFileName);
-    
-                        // Verifica que el archivo exista antes de intentar eliminarlo
-                        if (fs.existsSync(originalFilePath)) {
-                            fs.unlinkSync(originalFilePath);
-                            console.log(`Archivo original eliminado: ${originalFilePath}`);
-                        } else {
-                            console.warn(`No se encontró el archivo original: ${originalFilePath}`);
-                        }
+                        const fullPath = path.join(__dirname, '../uploads', path.basename(originalMediaUrl));
+                        fs.existsSync(fullPath) && fs.unlinkSync(fullPath);
                     }
                 });
     
@@ -109,13 +103,12 @@ const PublicationController = {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
-    },    
+    },
 
     deletePublication: async (req: Request, res: Response) => {
         try {
             const publicationId = parseInt(req.params.id, 10);
 
-            // Obtén la información de la publicación antes de eliminarla
             const result = await pool.query(
                 'DELETE FROM publications WHERE id = $1 RETURNING *',
                 [publicationId]
@@ -124,24 +117,11 @@ const PublicationController = {
             if (result.rows.length === 0) {
                 res.status(404).json({ error: 'Publication not found' });
             } else {
-                // Elimina el archivo asociado
                 const mediaUrls = result.rows[0].file_paths as string[];
 
                 mediaUrls.forEach((mediaUrl) => {
-                    const fileName = path.basename(mediaUrl);
-                    const filePath = path.join(__dirname, '../uploads', fileName);
-
-                    // Verifica que el archivo exista antes de intentar eliminarlo
-                    if (fs.existsSync(filePath)) {
-                        try {
-                            fs.unlinkSync(filePath);
-                            console.log(`Archivo eliminado: ${filePath}`);
-                        } catch (error) {
-                            console.error(`Error al eliminar archivo ${filePath}:`, error);
-                        }
-                    } else {
-                        console.warn(`No se encontró el archivo: ${filePath}`);
-                    }
+                    const fullPath = path.join(__dirname, '../uploads', path.basename(mediaUrl));
+                    fs.existsSync(fullPath) && fs.unlinkSync(fullPath);
                 });
 
                 res.json({ message: 'Publication deleted successfully', deletePublication: result.rows[0] });
@@ -150,7 +130,7 @@ const PublicationController = {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
-    },    
+    },
 
     PublicationById: async (req: Request, res: Response) => {
         try {
