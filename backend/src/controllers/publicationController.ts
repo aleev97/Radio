@@ -16,39 +16,42 @@ interface Publication {
 const PublicationController = {
     createPublication: async (req: Request, res: Response) => {
         try {
-            const { user_id, content } = req.body;
-            const file = req.file;
-
-            // Validación de campos obligatorios
-            if (!user_id || !content || !file) {
-                return res.status(400).json({ error: 'User ID, content, and file are required' });
-            }
-
-            const newPublication: Publication = {
-                user_id,
-                content,
-                file_paths: [],
-            };
-
+          const { user_id, content } = req.body;
+          const file = req.file;
+    
+          // Validación de campos obligatorios (User ID y Contenido)
+          if (!user_id || !content) {
+            return res.status(400).json({ error: 'User ID and content are required' });
+          }
+    
+          const newPublication: Publication = {
+            user_id,
+            content,
+            file_paths: [],
+          };
+    
+          // Si se proporciona un archivo, manejarlo
+          if (file) {
             const fileBuffer = file.buffer;
             const media_url = `/uploads/${file.originalname}`;
             newPublication.file_paths.push(media_url);
-
+    
             // Guardar la imagen en el sistema de archivos
             const uploadPath = path.join(__dirname, '../uploads', file.originalname);
             fs.writeFileSync(uploadPath, fileBuffer);
-
-            const result = await pool.query(
-                'INSERT INTO publications(user_id, content, file_paths) VALUES($1, $2, $3) RETURNING *',
-                [newPublication.user_id, newPublication.content, newPublication.file_paths]
-            );
-
-            res.json(result.rows[0]);
+          }
+    
+          const result = await pool.query(
+            'INSERT INTO publications(user_id, content, file_paths) VALUES($1, $2, $3) RETURNING *',
+            [newPublication.user_id, newPublication.content, newPublication.file_paths]
+          );
+    
+          res.json(result.rows[0]);
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Internal Server Error' });
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
         }
-    },
+      },
 
     updatePublication: async (req: Request, res: Response) => {
         try {
