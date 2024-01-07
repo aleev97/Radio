@@ -8,6 +8,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 interface Publication {
+    total_reactions: number;
+    reactions_count: any;
     user_id: number;
     content: string;
     file_paths: string[];
@@ -28,6 +30,8 @@ const PublicationController = {
                 user_id,
                 content,
                 file_paths: [],
+                total_reactions: 0,
+                reactions_count: undefined
             };
 
             // Si se proporciona un archivo, manejarlo
@@ -71,7 +75,9 @@ const PublicationController = {
             const updatePublication: Publication = {
                 content,
                 file_paths: existingPublication.rows[0].file_paths as string[],
-                user_id: 0
+                user_id: 0,
+                total_reactions: 0,
+                reactions_count: undefined
             };
 
             let originalMediaUrls: string[] = [];
@@ -138,47 +144,51 @@ const PublicationController = {
     PublicationById: async (req: Request, res: Response) => {
         try {
             const publicationId = parseInt(req.params.id, 10);
-
+    
             const publicationResult = await pool.query('SELECT * FROM publications WHERE id = $1', [publicationId]);
-
+    
             if (publicationResult.rows.length === 0) {
                 res.status(404).json({ error: 'Publication not found' });
                 return;
             }
-
+    
             const publication = publicationResult.rows[0];
-
+    
             // Obtener las reacciones asociadas a la publicación
             const reactionsResult = await pool.query('SELECT * FROM reactions WHERE publication_id = $1', [publicationId]);
             publication.reactions = reactionsResult.rows;
-
+            publication.total_reactions = reactionsResult.rows.length;
+    
             res.json(publication);
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
-
+    
+    
     AllPublications: async (req: Request, res: Response) => {
         try {
             const result = await pool.query('SELECT * FROM publications');
-
+    
             // Mapear cada publicación y cargar las reacciones correspondientes
             const publicationsWithReactions = result.rows.map(async (publication) => {
                 const reactionsResult = await pool.query('SELECT * FROM reactions WHERE publication_id = $1', [publication.id]);
                 publication.reactions = reactionsResult.rows;
+                publication.total_reactions = reactionsResult.rows.length;
                 return publication;
             });
-
+    
             // Esperar a que todas las publicaciones se procesen antes de enviar la respuesta
             const publications = await Promise.all(publicationsWithReactions);
-
+    
             res.json(publications);
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
+    
 };
 
 export default PublicationController;

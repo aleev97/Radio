@@ -29,6 +29,9 @@ const ReactionController = {
                 [publication_id, user_id, reaction_type]
             );
 
+            // Actualizar la publicación con las nuevas estadísticas de reacciones
+            await updatePublicationReactions(publication_id);
+
             res.json(result.rows[0]);
 
         } catch (error) {
@@ -56,6 +59,9 @@ const ReactionController = {
                 return res.status(404).json({ error: 'Reaction not found.' });
             }
 
+            // Actualizar la publicación con las nuevas estadísticas de reacciones
+            await updatePublicationReactions(publication_id);
+
             res.json(result.rows[0]);
 
         } catch (error) {
@@ -64,5 +70,30 @@ const ReactionController = {
         }
     }
 };
+
+async function updatePublicationReactions(publication_id: number) {
+    // Obtener la cantidad total de reacciones y el desglose por tipo de reacción
+    const totalReactionsResult = await pool.query(
+        'SELECT COUNT(*) as total_reactions FROM reactions WHERE publication_id = $1',
+        [publication_id]
+    );
+
+    const reactionsCountResult = await pool.query(
+        'SELECT reaction_type, COUNT(*) as count FROM reactions WHERE publication_id = $1 GROUP BY reaction_type',
+        [publication_id]
+    );
+
+    const totalReactions = parseInt(totalReactionsResult.rows[0].total_reactions);
+    const reactionsCount = reactionsCountResult.rows.reduce((acc: { [key: string]: number }, row) => {
+        acc[row.reaction_type] = parseInt(row.count);
+        return acc;
+    }, {});
+
+    // Actualizar la publicación con las nuevas estadísticas de reacciones
+    await pool.query(
+        'UPDATE publications SET total_reactions = $1, reactions_count = $2 WHERE id = $3',
+        [totalReactions, reactionsCount, publication_id]
+    );
+}
 
 export default ReactionController;

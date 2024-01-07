@@ -6,4 +6,6 @@ export interface Publication {
     file_paths: string[];
     created_at?: Date;
     reactions?: Reaction[];
+    total_reactions?: number;
+    reactions_count?: { [key: string]: number };
 }
