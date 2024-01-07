@@ -35,8 +35,7 @@ const ReactionController = {
             res.json(result.rows[0]);
 
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            handleServerError(res, error);
         }
     },
 
@@ -65,35 +64,38 @@ const ReactionController = {
             res.json(result.rows[0]);
 
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            handleServerError(res, error);
         }
     }
 };
 
 async function updatePublicationReactions(publication_id: number) {
-    // Obtener la cantidad total de reacciones y el desglose por tipo de reacción
-    const totalReactionsResult = await pool.query(
-        'SELECT COUNT(*) as total_reactions FROM reactions WHERE publication_id = $1',
-        [publication_id]
-    );
+    try {
+        // Obtener la cantidad total de reacciones y el desglose por tipo de reacción
+        const [totalReactionsResult, reactionsCountResult] = await Promise.all([
+            pool.query('SELECT COUNT(*) as total_reactions FROM reactions WHERE publication_id = $1', [publication_id]),
+            pool.query('SELECT reaction_type, COUNT(*) as count FROM reactions WHERE publication_id = $1 GROUP BY reaction_type', [publication_id]),
+        ]);
 
-    const reactionsCountResult = await pool.query(
-        'SELECT reaction_type, COUNT(*) as count FROM reactions WHERE publication_id = $1 GROUP BY reaction_type',
-        [publication_id]
-    );
+        const totalReactions = parseInt(totalReactionsResult.rows[0].total_reactions);
+        const reactionsCount = reactionsCountResult.rows.reduce((acc: { [key: string]: number }, row) => {
+            acc[row.reaction_type] = parseInt(row.count);
+            return acc;
+        }, {});
 
-    const totalReactions = parseInt(totalReactionsResult.rows[0].total_reactions);
-    const reactionsCount = reactionsCountResult.rows.reduce((acc: { [key: string]: number }, row) => {
-        acc[row.reaction_type] = parseInt(row.count);
-        return acc;
-    }, {});
+        // Actualizar la publicación con las nuevas estadísticas de reacciones
+        await pool.query(
+            'UPDATE publications SET total_reactions = $1, reactions_count = $2 WHERE id = $3',
+            [totalReactions, reactionsCount, publication_id]
+        );
+    } catch (error) {
+        console.error(error);
+    }
+}
 
-    // Actualizar la publicación con las nuevas estadísticas de reacciones
-    await pool.query(
-        'UPDATE publications SET total_reactions = $1, reactions_count = $2 WHERE id = $3',
-        [totalReactions, reactionsCount, publication_id]
-    );
+function handleServerError(res: Response, error: any) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
 }
 
 export default ReactionController;
