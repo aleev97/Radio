@@ -159,6 +159,11 @@ const PublicationController = {
             publication.reactions = reactionsResult.rows;
             publication.total_reactions = reactionsResult.rows.length;
     
+            // Obtener los comentarios asociados a la publicación
+            const commentsResult = await pool.query('SELECT * FROM comments WHERE publication_id = $1', [publicationId]);
+            publication.comments = commentsResult.rows;
+            publication.total_comments = commentsResult.rows.length;
+    
             res.json(publication);
         } catch (error) {
             console.error(error);
@@ -166,29 +171,30 @@ const PublicationController = {
         }
     },
     
-    
     AllPublications: async (req: Request, res: Response) => {
         try {
             const result = await pool.query('SELECT * FROM publications');
     
-            // Mapear cada publicación y cargar las reacciones correspondientes
-            const publicationsWithReactions = result.rows.map(async (publication) => {
+            // Mapear cada publicación y cargar las reacciones y comentarios correspondientes
+            const publicationsWithDetails = await Promise.all(result.rows.map(async (publication) => {
                 const reactionsResult = await pool.query('SELECT * FROM reactions WHERE publication_id = $1', [publication.id]);
+                const commentsResult = await pool.query('SELECT * FROM comments WHERE publication_id = $1', [publication.id]);
+    
                 publication.reactions = reactionsResult.rows;
                 publication.total_reactions = reactionsResult.rows.length;
+    
+                publication.comments = commentsResult.rows;
+                publication.total_comments = commentsResult.rows.length;
+    
                 return publication;
-            });
+            }));
     
-            // Esperar a que todas las publicaciones se procesen antes de enviar la respuesta
-            const publications = await Promise.all(publicationsWithReactions);
-    
-            res.json(publications);
+            res.json(publicationsWithDetails);
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
-    
 };
 
 export default PublicationController;
