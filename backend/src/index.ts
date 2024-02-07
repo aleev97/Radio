@@ -54,7 +54,7 @@ app.post('/api/uploads', upload.single('file'), async (req: Request, res: Respon
 });
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to the Radio App API!');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.use('/api', userRoutes);
