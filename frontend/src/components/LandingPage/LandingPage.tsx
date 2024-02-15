@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from './landingpage.module.css';
-import image from '../imagenes/logo.jpg'
+import image from '../imagenes/logo.jpg';
 
 const LandingPage: React.FC = () => {
   const [registerForm, setRegisterForm] = useState({
@@ -27,13 +27,9 @@ const LandingPage: React.FC = () => {
   }, []);
 
   const handleResize = () => {
-    if (window.innerWidth > 850) {
-      setShowRegisterPassword(true);
-      setShowLoginPassword(true);
-    } else {
-      setShowRegisterPassword(false);
-      setShowLoginPassword(false);
-    }
+    const isWideScreen = window.innerWidth > 850;
+    setShowRegisterPassword(isWideScreen);
+    setShowLoginPassword(isWideScreen);
   };
 
   const handleToggleShowRegisterPassword = () => {
@@ -44,20 +40,19 @@ const LandingPage: React.FC = () => {
     setShowLoginPassword(!showLoginPassword);
   };
   
-  const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (formType: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setRegisterForm({
-      ...registerForm,
-      [name]: value
-    });
-  };
-
-  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setLoginForm({
-      ...loginForm,
-      [name]: value
-    });
+    if (formType === 'login') {
+      setLoginForm({
+        ...loginForm,
+        [name]: value
+      });
+    } else {
+      setRegisterForm({
+        ...registerForm,
+        [name]: value
+      });
+    }
   };
 
   const handleMoveToLogin = () => {
@@ -67,53 +62,37 @@ const LandingPage: React.FC = () => {
 
   const handleMoveToRegister = () => {
     setLoginFormVisible(false);
-    setFormPosition(33); // Mover el formulario de registro hacia la izquierda
+    setFormPosition(33);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (loginFormVisible) {
-      // Code to handle login form submission
-      try {
-        const response = await fetch('api/users/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(loginForm)
-        });
-        if (response.ok) {
-          console.log('Usuario autenticado exitosamente');
-        } else {
-          console.error('Error al iniciar sesión:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error al conectar con el servidor:', error);
+    const endpoint = loginFormVisible ? 'api/users/login' : 'api/users/register';
+    const formData = loginFormVisible ? loginForm : registerForm;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        const successMessage = loginFormVisible ? 'Usuario autenticado exitosamente' : 'Usuario registrado exitosamente';
+        console.log(successMessage);
+      } else {
+        console.error('Error:', response.statusText);
       }
-    } else {
-      // Code to handle register form submission
-      try {
-        const response = await fetch('api/users/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(registerForm)
-        });
-        if (response.ok) {
-          console.log('Usuario registrado exitosamente');
-        } else {
-          console.error('Error al registrar usuario:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error al conectar con el servidor:', error);
-      }
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
   return (
     <main>
-        <h1 className={styles.Titulo}>Bienvenidos a Radio de M.F.C</h1>
+      <h1 className={styles.Titulo}>Bienvenidos a Radio de M.F.C</h1>
       <div className={styles.container}>
         <div className={styles.caja__trasera}>
           <div className={styles.caja__trasera_login}>
@@ -135,7 +114,7 @@ const LandingPage: React.FC = () => {
               name="username"
               placeholder="Nombre de usuario"
               value={loginFormVisible ? loginForm.username : registerForm.username}
-              onChange={loginFormVisible ? handleLoginChange : handleRegisterChange}
+              onChange={handleFormChange(loginFormVisible ? 'login' : 'register')}
             />
             {loginFormVisible ? (
               <div className={styles.passwordInputContainer}>
@@ -144,7 +123,7 @@ const LandingPage: React.FC = () => {
                   name="password"
                   placeholder="Contraseña"
                   value={loginForm.password}
-                  onChange={handleLoginChange}
+                  onChange={handleFormChange('login')}
                   className={styles.passwordInput}
                 />
                 <button
@@ -155,7 +134,6 @@ const LandingPage: React.FC = () => {
                   {showLoginPassword ? "◡" : "👁️"}
                 </button>
               </div>
-
             ) : (
               <>
                 <input
@@ -163,7 +141,7 @@ const LandingPage: React.FC = () => {
                   name="email"
                   placeholder="Correo electrónico"
                   value={registerForm.email}
-                  onChange={handleRegisterChange}
+                  onChange={handleFormChange('register')}
                 />
                 <div className={styles.passwordInputContainer}>
                   <input
@@ -171,7 +149,7 @@ const LandingPage: React.FC = () => {
                     name="password"
                     placeholder="Contraseña"
                     value={registerForm.password}
-                    onChange={handleRegisterChange}
+                    onChange={handleFormChange('register')}
                     className={styles.passwordInput}
                   />
                   <button
@@ -196,7 +174,6 @@ const LandingPage: React.FC = () => {
                   />
                   <span className={styles.checkboxText}>Administrador</span>
                 </label>
-
               </>
             )}
             <button className={styles.Button_RegisterInicio} type="submit">
