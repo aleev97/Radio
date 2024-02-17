@@ -1,24 +1,42 @@
 import React, { useState, useEffect } from "react";
 import styles from './landingpage.module.css';
 import image from '../imagenes/logo.jpg';
+import validate from './validate';
+import { Errors } from "../../types";
+
+interface RegisterForm {
+  username: string;
+  email: string;
+  password: string;
+  isAdmin: boolean;
+}
+
+interface LoginForm {
+  username: string;
+  email: string;
+  password: string;
+}
 
 const LandingPage: React.FC = () => {
-  const [registerForm, setRegisterForm] = useState({
+  const [registerForm, setRegisterForm] = useState<RegisterForm>({
     username: "",
     email: "",
     password: "",
     isAdmin: false
   });
 
-  const [loginForm, setLoginForm] = useState({
+  const [loginForm, setLoginForm] = useState<LoginForm>({
     username: "",
-    password: ""
+    password: "",
+    email: ""
   });
 
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginFormVisible, setLoginFormVisible] = useState(true);
   const [formPosition, setFormPosition] = useState(0);
+  const [registerErrors, setRegisterErrors] = useState<Errors>({});
+  const [loginErrors, setLoginErrors] = useState<Errors>({});
 
   useEffect(() => {
     handleResize();
@@ -35,11 +53,11 @@ const LandingPage: React.FC = () => {
   const handleToggleShowRegisterPassword = () => {
     setShowRegisterPassword(!showRegisterPassword);
   };
-  
+
   const handleToggleShowLoginPassword = () => {
     setShowLoginPassword(!showLoginPassword);
   };
-  
+
   const handleFormChange = (formType: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (formType === 'login') {
@@ -65,28 +83,63 @@ const LandingPage: React.FC = () => {
     setFormPosition(33);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const endpoint = loginFormVisible ? 'api/users/login' : 'api/users/register';
-    const formData = loginFormVisible ? loginForm : registerForm;
+    const validationErrors = validate(registerForm); // Validar el formulario de registro
+    if (Object.keys(validationErrors).length === 0) {
+      // Si no hay errores de validación
+      const endpoint = 'api/users/register';
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(registerForm)
+        });
 
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        const successMessage = loginFormVisible ? 'Usuario autenticado exitosamente' : 'Usuario registrado exitosamente';
-        console.log(successMessage);
-      } else {
-        console.error('Error:', response.statusText);
+        if (response.ok) {
+          const successMessage = 'Usuario registrado exitosamente';
+          console.log(successMessage);
+        } else {
+          console.error('Error:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error:', error);
       }
-    } catch (error) {
-      console.error('Error:', error);
+    } else {
+      // Si hay errores de validación, establecerlos en el estado de errores de registro
+      setRegisterErrors(validationErrors);
+    }
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const validationErrors = validate(loginForm); // Validar el formulario de inicio de sesión
+    if (Object.keys(validationErrors).length === 0) {
+      // Si no hay errores de validación
+      const endpoint = 'api/users/login';
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(loginForm)
+        });
+
+        if (response.ok) {
+          const successMessage = 'Usuario autenticado exitosamente';
+          console.log(successMessage);
+        } else {
+          console.error('Error:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    } else {
+      // Si hay errores de validación, establecerlos en el estado de errores de inicio de sesión
+      setLoginErrors(validationErrors as Errors); // Añadimos 'as Errors' para indicar a TypeScript que tratamos el objeto como un tipo Errors
     }
   };
 
@@ -107,7 +160,7 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
         <div className={styles.container_formularios} style={{ left: `${formPosition}%` }}>
-          <form className={`${styles.container_formularios} ${loginFormVisible ? styles.Formulario_login : styles.Formulario_register}`} onSubmit={handleSubmit}>
+          <form className={`${styles.container_formularios} ${loginFormVisible ? styles.Formulario_login : styles.Formulario_register}`} onSubmit={loginFormVisible ? handleLoginSubmit : handleRegisterSubmit}>
             <h2>{loginFormVisible ? 'Iniciar sesión' : 'Registrarse'}</h2>
             <input
               type="text"
@@ -179,6 +232,10 @@ const LandingPage: React.FC = () => {
             <button className={styles.Button_RegisterInicio} type="submit">
               <p className={styles.text_button}>{loginFormVisible ? 'Entrar' : 'Registrarse'}</p>
             </button>
+            {loginFormVisible && loginErrors.username && <p className={styles.error}>{loginErrors.username}</p>}
+            {!loginFormVisible && registerErrors.username && <p className={styles.error}>{registerErrors.username}</p>}
+            {!loginFormVisible && registerErrors.email && <p className={styles.error}>{registerErrors.email}</p>}
+            {!loginFormVisible && registerErrors.password && <p className={styles.error}>{registerErrors.password}</p>}
           </form>
         </div>
       </div>
