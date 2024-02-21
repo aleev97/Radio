@@ -9,7 +9,7 @@ interface RegisterForm {
   username: string;
   email: string;
   password: string;
-  isAdmin: boolean;
+  isadmin: boolean;
 }
 
 interface LoginForm {
@@ -25,10 +25,10 @@ const LandingPage: React.FC = () => {
     username: "",
     email: "",
     password: "",
-    isAdmin: false
+    isadmin: false
   });
 
-  const [isAdminChecked, setIsAdminChecked] = useState(false); // Nuevo estado para controlar el checkbox
+  const [isadminChecked, setIsadminChecked] = useState(false); // Nuevo estado para controlar el checkbox
 
   const [loginForm, setLoginForm] = useState<LoginForm>({
     username: "",
@@ -100,9 +100,9 @@ const LandingPage: React.FC = () => {
         username: "",
         email: "",
         password: "",
-        isAdmin: false
+        isadmin: false
       });
-      setIsAdminChecked(false);
+      setIsadminChecked(false);
     }
   };
   
@@ -111,9 +111,9 @@ const LandingPage: React.FC = () => {
     const validationErrors = validate(registerForm);
     if (Object.keys(validationErrors).length === 0) {
       // Utilizamos el estado isAdminChecked para determinar si el checkbox está marcado
-      const isAdminValue = isAdminChecked ? true : false;
+      const isAdminValue = isadminChecked ? true : false;
       try {
-        const response = await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isAdmin: isAdminValue });
+        const response = await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isadmin: isAdminValue });
         console.log('Response:', response.data);
         alert('Usuario registrado exitosamente');
         clearForm('register'); // Limpiar el formulario de registro después de enviarlo con éxito
@@ -229,8 +229,8 @@ const LandingPage: React.FC = () => {
                 <label className={styles.checkboxContainer}>
                   <input
                     type="checkbox"
-                    checked={isAdminChecked}
-                    onChange={() => setIsAdminChecked(!isAdminChecked)}
+                    checked={isadminChecked}
+                    onChange={() => setIsadminChecked(!isadminChecked)}
                     className={styles.checkboxInput}
                   />
                   <span className={styles.checkboxText}>Administrador</span>
