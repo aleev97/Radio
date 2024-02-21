@@ -88,6 +88,24 @@ const LandingPage: React.FC = () => {
     setFormPosition(33);
   };
 
+  const clearForm = (formType: string) => {
+    if (formType === 'login') {
+      setLoginForm({
+        username: "",
+        email: "",
+        password: ""
+      });
+    } else {
+      setRegisterForm({
+        username: "",
+        email: "",
+        password: "",
+        isAdmin: false
+      });
+      setIsAdminChecked(false);
+    }
+  };
+  
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(registerForm);
@@ -98,6 +116,7 @@ const LandingPage: React.FC = () => {
         const response = await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isAdmin: isAdminValue });
         console.log('Response:', response.data);
         alert('Usuario registrado exitosamente');
+        clearForm('register'); // Limpiar el formulario de registro después de enviarlo con éxito
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const axiosError = error as AxiosError;
@@ -121,6 +140,7 @@ const LandingPage: React.FC = () => {
         const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm);
         console.log('Response:', response.data);
         alert('Usuario autenticado exitosamente');
+        clearForm('login'); // Limpiar el formulario de inicio de sesión después de enviarlo con éxito
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const axiosError = error as AxiosError;
@@ -134,7 +154,7 @@ const LandingPage: React.FC = () => {
     } else {
       setLoginErrors(validationErrors as Errors);
     }
-  };
+  };  
 
   return (
     <main>
