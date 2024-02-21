@@ -215,6 +215,11 @@ main {
   opacity: 0.8;
 }
 
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+}
 
 /* Estilos para pantallas pequeñas */
 @media screen and (max-width: 850px) {
@@ -244,10 +249,4 @@ main {
   .container_formularios form {
     position: relative;
   }
-}
-
-.error {
-  color: red;
-  font-size: 14px;
-  margin-top: 5px;
 }
