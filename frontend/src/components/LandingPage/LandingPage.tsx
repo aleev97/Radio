@@ -3,6 +3,7 @@ import styles from './landingpage.module.css';
 import image from '../imagenes/logo.jpg';
 import validate from './validate';
 import { Errors } from "../../types";
+import axios, { AxiosError } from 'axios';
 
 interface RegisterForm {
   username: string;
@@ -18,12 +19,16 @@ interface LoginForm {
 }
 
 const LandingPage: React.FC = () => {
+  const API_BASE_URL = 'http://localhost:3000/api';
+
   const [registerForm, setRegisterForm] = useState<RegisterForm>({
     username: "",
     email: "",
     password: "",
     isAdmin: false
   });
+
+  const [isAdminChecked, setIsAdminChecked] = useState(false); // Nuevo estado para controlar el checkbox
 
   const [loginForm, setLoginForm] = useState<LoginForm>({
     username: "",
@@ -71,7 +76,7 @@ const LandingPage: React.FC = () => {
         [name]: value
       });
     }
-  };
+  };   
 
   const handleMoveToLogin = () => {
     setLoginFormVisible(true);
@@ -85,61 +90,49 @@ const LandingPage: React.FC = () => {
 
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const validationErrors = validate(registerForm); // Validar el formulario de registro
+    const validationErrors = validate(registerForm);
     if (Object.keys(validationErrors).length === 0) {
-      // Si no hay errores de validación
-      const endpoint = 'api/users/register';
+      // Utilizamos el estado isAdminChecked para determinar si el checkbox está marcado
+      const isAdminValue = isAdminChecked ? true : false;
       try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(registerForm)
-        });
-
-        if (response.ok) {
-          const successMessage = 'Usuario registrado exitosamente';
-          console.log(successMessage);
-        } else {
-          console.error('Error:', response.statusText);
-        }
+        const response = await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isAdmin: isAdminValue });
+        console.log('Response:', response.data);
+        alert('Usuario registrado exitosamente');
       } catch (error) {
-        console.error('Error:', error);
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError;
+          console.error('Error:', axiosError.response?.data || axiosError.message);
+          alert('Error al registrar usuario');
+        } else {
+          console.error('Error:', error);
+          alert('Error al registrar usuario');
+        }
       }
     } else {
-      // Si hay errores de validación, establecerlos en el estado de errores de registro
       setRegisterErrors(validationErrors);
     }
-  };
-
+  };  
+  
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const validationErrors = validate(loginForm); // Validar el formulario de inicio de sesión
+    const validationErrors = validate(loginForm);
     if (Object.keys(validationErrors).length === 0) {
-      // Si no hay errores de validación
-      const endpoint = 'api/users/login';
       try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(loginForm)
-        });
-
-        if (response.ok) {
-          const successMessage = 'Usuario autenticado exitosamente';
-          console.log(successMessage);
-        } else {
-          console.error('Error:', response.statusText);
-        }
+        const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm);
+        console.log('Response:', response.data);
+        alert('Usuario autenticado exitosamente');
       } catch (error) {
-        console.error('Error:', error);
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError;
+          console.error('Error:', axiosError.response?.data || axiosError.message);
+          alert('Error al iniciar sesión');
+        } else {
+          console.error('Error:', error);
+          alert('Error al iniciar sesión');
+        }
       }
     } else {
-      // Si hay errores de validación, establecerlos en el estado de errores de inicio de sesión
-      setLoginErrors(validationErrors as Errors); // Añadimos 'as Errors' para indicar a TypeScript que tratamos el objeto como un tipo Errors
+      setLoginErrors(validationErrors as Errors);
     }
   };
 
@@ -216,13 +209,8 @@ const LandingPage: React.FC = () => {
                 <label className={styles.checkboxContainer}>
                   <input
                     type="checkbox"
-                    checked={registerForm.isAdmin}
-                    onChange={() =>
-                      setRegisterForm({
-                        ...registerForm,
-                        isAdmin: !registerForm.isAdmin
-                      })
-                    }
+                    checked={isAdminChecked}
+                    onChange={() => setIsAdminChecked(!isAdminChecked)}
                     className={styles.checkboxInput}
                   />
                   <span className={styles.checkboxText}>Administrador</span>

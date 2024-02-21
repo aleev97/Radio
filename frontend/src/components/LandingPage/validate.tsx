@@ -1,4 +1,5 @@
 import { Errors } from "../../types";
+
 export default function validate({ username, email, password }: { username: string; email: string; password: string }): Errors {
   let errors: Errors = {};
 
