@@ -3,15 +3,13 @@ import styles from './landingpage.module.css';
 import image from '../imagenes/logo.jpg';
 import validate from './validate';
 import { Errors } from "../../types";
-import axios, { AxiosError } from 'axios';
-
+import axios from 'axios';
 interface RegisterForm {
   username: string;
   email: string;
   password: string;
   isadmin: boolean;
 }
-
 interface LoginForm {
   username: string;
   email: string;
@@ -28,8 +26,7 @@ const LandingPage: React.FC = () => {
     isadmin: false
   });
 
-  const [isadminChecked, setIsadminChecked] = useState(false); // Nuevo estado para controlar el checkbox
-
+  const [isadminChecked, setIsadminChecked] = useState(false);
   const [loginForm, setLoginForm] = useState<LoginForm>({
     username: "",
     password: "",
@@ -42,11 +39,27 @@ const LandingPage: React.FC = () => {
   const [formPosition, setFormPosition] = useState(0);
   const [registerErrors, setRegisterErrors] = useState<Errors>({});
   const [loginErrors, setLoginErrors] = useState<Errors>({});
+  const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(""); // Limpiar el mensaje después de 2.8 segundos
+      }, 8800);
+      return () => clearTimeout(timer); // Limpiar el temporizador si el componente se desmonta o el mensaje cambia
+    }
+  }, [message]);
+
+  useEffect(() => {
+    const isWideScreen = window.innerWidth > 850;
+    setShowRegisterPassword(isWideScreen);
+    setShowLoginPassword(isWideScreen);
   }, []);
 
   const handleResize = () => {
@@ -56,27 +69,27 @@ const LandingPage: React.FC = () => {
   };
 
   const handleToggleShowRegisterPassword = () => {
-    setShowRegisterPassword(!showRegisterPassword);
+    setShowRegisterPassword(prevState => !prevState);
   };
 
   const handleToggleShowLoginPassword = () => {
-    setShowLoginPassword(!showLoginPassword);
+    setShowLoginPassword(prevState => !prevState);
   };
 
   const handleFormChange = (formType: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (formType === 'login') {
-      setLoginForm({
-        ...loginForm,
+      setLoginForm(prevState => ({
+        ...prevState,
         [name]: value
-      });
+      }));
     } else {
-      setRegisterForm({
-        ...registerForm,
+      setRegisterForm(prevState => ({
+        ...prevState,
         [name]: value
-      });
+      }));
     }
-  };   
+  };
 
   const handleMoveToLogin = () => {
     setLoginFormVisible(true);
@@ -105,56 +118,41 @@ const LandingPage: React.FC = () => {
       setIsadminChecked(false);
     }
   };
-  
+
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(registerForm);
     if (Object.keys(validationErrors).length === 0) {
-      // Utilizamos el estado isAdminChecked para determinar si el checkbox está marcado
       const isAdminValue = isadminChecked ? true : false;
       try {
-        const response = await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isadmin: isAdminValue });
-        console.log('Response:', response.data);
-        alert('Usuario registrado exitosamente');
-        clearForm('register'); // Limpiar el formulario de registro después de enviarlo con éxito
+        await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isadmin: isAdminValue });
+        setMessage('Usuario registrado exitosamente');
+        clearForm('register');
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.error('Error:', axiosError.response?.data || axiosError.message);
-          alert('Error al registrar usuario');
-        } else {
-          console.error('Error:', error);
-          alert('Error al registrar usuario');
-        }
+        setMessage('Error al registrar usuario');
+        console.error('Error:', error);
       }
     } else {
       setRegisterErrors(validationErrors);
     }
-  };  
-  
+  };
+
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(loginForm);
     if (Object.keys(validationErrors).length === 0) {
       try {
-        const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm);
-        console.log('Response:', response.data);
-        alert('Usuario autenticado exitosamente');
-        clearForm('login'); // Limpiar el formulario de inicio de sesión después de enviarlo con éxito
+        await axios.post(`${API_BASE_URL}/users/login`, loginForm);
+        setMessage('Usuario autenticado exitosamente');
+        clearForm('login');
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.error('Error:', axiosError.response?.data || axiosError.message);
-          alert('Error al iniciar sesión');
-        } else {
-          console.error('Error:', error);
-          alert('Error al iniciar sesión');
-        }
+        setMessage('Error al iniciar sesión');
+        console.error('Error:', error);
       }
     } else {
       setLoginErrors(validationErrors as Errors);
     }
-  };  
+  };
 
   return (
     <main>
@@ -248,6 +246,11 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
       <img src={image} alt="Logo" className={styles.logo} />
+      {message && (
+        <div className={styles.message_container}>
+          <p>{message}</p>
+        </div>
+      )}
     </main>
   );
 };

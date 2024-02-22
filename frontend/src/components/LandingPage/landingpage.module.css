@@ -221,6 +221,44 @@ main {
   margin-top: 5px;
 }
 
+.message_container {
+  position: fixed;
+  top: 75%;
+  left: 57%;
+  transform: translate(-50%, -50%);
+  background-color: #FFA500;
+  border: 2px solid rgb(102, 58, 0);
+  padding: 20px;
+  border-radius: 8px;
+  visibility: hidden;
+  animation: zoomIn 0.5s forwards, zoomOut 0.5s forwards 2.8s;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@keyframes zoomOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
+  to {
+    transform: scale(0);
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
 /* Estilos para pantallas pequeñas */
 @media screen and (max-width: 850px) {
   main {
