@@ -1,6 +1,6 @@
 import { Errors } from "../../types";
 
-export default function validate({ username, email, password }: { username: string; email: string; password: string }): Errors {
+export default function validate({ username, password }: { username: string; password: string }): Errors {
   let errors: Errors = {};
 
   if (!username) {
@@ -11,11 +11,7 @@ export default function validate({ username, email, password }: { username: stri
     errors = { ...errors, username: "El nombre de usuario solo puede contener letras, números y guiones bajos" };
   }
 
-  if (!email) {
-    errors = { ...errors, email: "Debe ingresar un correo electrónico" };
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors = { ...errors, email: "Debe ingresar un correo electrónico válido" };
-  }
+
 
   if (!password) {
     errors = { ...errors, password: "Debe ingresar una contraseña" };
