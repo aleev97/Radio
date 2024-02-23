@@ -5,18 +5,7 @@ import styles from './landingpage.module.css';
 import image from '../imagenes/logo.jpg';
 import validate from './validate';
 import axios from 'axios';
-
-interface RegisterForm {
-  username: string;
-  email: string;
-  password: string;
-  isadmin: boolean;
-}
-
-interface LoginForm {
-  username: string;
-  password: string;
-}
+import { RegisterForm, LoginForm } from "../../types";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +23,6 @@ const LandingPage: React.FC = () => {
     username: "", // Cambiar de email a username
     password: "",
   });
-
 
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -84,7 +72,6 @@ const LandingPage: React.FC = () => {
       }));
     }
   };
-
 
   const handleMoveToLogin = () => {
     setLoginFormVisible(true);

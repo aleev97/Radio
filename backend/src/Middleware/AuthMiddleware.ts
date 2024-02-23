@@ -1,4 +1,3 @@
-// Middleware/AuthMiddleware.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt, { Secret, JsonWebTokenError, TokenExpiredError, JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -6,6 +5,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Extendemos la interfaz Request para incluir la propiedad user
 interface AuthenticatedRequest extends Request {
   user?: JwtPayload;
 }
@@ -15,6 +15,7 @@ interface AuthMiddleware {
   comparePasswords(plainTextPassword: string, hashedPassword: string): Promise<boolean>;
   generateToken(payload: any): string;
   isAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction): void;
+  registerAuditLog(req: AuthenticatedRequest): void;
 }
 
 const AuthMiddleware: AuthMiddleware = {
@@ -37,7 +38,6 @@ const AuthMiddleware: AuthMiddleware = {
 
       req.user = decodedToken;
 
-      // Añadir la verificación de si el usuario es administrador
       AuthMiddleware.isAdmin(req, res, next);
     } catch (error) {
       if (error instanceof TokenExpiredError) {
@@ -78,7 +78,6 @@ const AuthMiddleware: AuthMiddleware = {
   },
 
   isAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    // Lógica para verificar si el usuario es administrador
     if (!req.user?.isadmin) {
       console.error('Forbidden - User is not an administrator');
       return res.status(403).json({ error: 'Forbidden - User is not an administrator' });
@@ -86,6 +85,10 @@ const AuthMiddleware: AuthMiddleware = {
 
     next();
   },
+
+  registerAuditLog(req: AuthenticatedRequest) {
+    console.log('Audit Log:', { user: req.user, endpoint: req.originalUrl, method: req.method, timestamp: new Date() });
+  }
 };
 
 export default AuthMiddleware;

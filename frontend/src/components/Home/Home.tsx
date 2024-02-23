@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
-interface UserData {
-  username: string;
-  email: string;
-  isadmin: boolean;
-}
+import { UserData } from '../../types';
 
 const Home: React.FC = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -15,7 +10,7 @@ const Home: React.FC = () => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          const response = await axios.get<UserData>('http://localhost:3000/api/user', {
+          const response = await axios.get<UserData>('http://localhost:3000/api/users', {
             headers: {
               Authorization: `Bearer ${token}`
             }
