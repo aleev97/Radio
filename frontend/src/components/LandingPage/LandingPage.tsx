@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import { RegisterForm, LoginForm, Errors } from "../../types";
+import { Errors } from "../../types";
 import styles from './landingpage.module.css';
-import image from '../imagenes/logo.jpg';
+import image from '../../../public/imagenes/logo.jpg';
 import validate from './validate';
+import axios from 'axios';
+import { RegisterForm, LoginForm } from "../../types";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,11 +17,10 @@ const LandingPage: React.FC = () => {
     password: "",
     isadmin: false
   });
-  
-  const [isadminChecked, setIsadminChecked] = useState(false);
 
+  const [isadminChecked, setIsadminChecked] = useState(false);
   const [loginForm, setLoginForm] = useState<LoginForm>({
-    username: "",
+    username: "", // Cambiar de email a username
     password: "",
   });
 
@@ -29,20 +29,26 @@ const LandingPage: React.FC = () => {
   const [loginFormVisible, setLoginFormVisible] = useState(true);
   const [formPosition, setFormPosition] = useState(0);
   const [registerErrors, setRegisterErrors] = useState<Errors>({});
+  const [loginErrors, setLoginErrors] = useState<Errors>({});
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
-    // Manejar redimensionamiento de la ventana
-    const handleResize = () => {
-      const isWideScreen = window.innerWidth > 850;
-      setShowRegisterPassword(isWideScreen);
-      setShowLoginPassword(isWideScreen);
-    };
-    // Asignar el listener del evento resize
+    handleResize();
     window.addEventListener("resize", handleResize);
-    // Limpiar el listener en la fase de limpieza
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    const isWideScreen = window.innerWidth > 850;
+    setShowRegisterPassword(isWideScreen);
+    setShowLoginPassword(isWideScreen);
+  }, []);
+
+  const handleResize = () => {
+    const isWideScreen = window.innerWidth > 850;
+    setShowRegisterPassword(isWideScreen);
+    setShowLoginPassword(isWideScreen);
+  };
 
   const handleToggleShowRegisterPassword = () => {
     setShowRegisterPassword(prevState => !prevState);
@@ -54,7 +60,6 @@ const LandingPage: React.FC = () => {
 
   const handleFormChange = (formType: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    // Actualizar el estado del formulario correspondiente
     if (formType === 'login') {
       setLoginForm(prevState => ({
         ...prevState,
@@ -99,7 +104,7 @@ const LandingPage: React.FC = () => {
     e.preventDefault();
     const validationErrors = validate(registerForm);
     if (Object.keys(validationErrors).length === 0) {
-      const isAdminValue = isadminChecked;
+      const isAdminValue = isadminChecked ? true : false;
       try {
         await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isadmin: isAdminValue });
         setMessage('Usuario registrado exitosamente');
@@ -115,23 +120,34 @@ const LandingPage: React.FC = () => {
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm);
-      const { token } = response.data;
-      localStorage.setItem('token', token);
-      setMessage('Usuario autenticado exitosamente');
-      clearForm('login');
-      navigate("/home");
-      fetchData();
-    } catch (error) {
-      setMessage('Error al iniciar sesión');
-      console.error('Error al iniciar sesión:', error);
+    const validationErrors = validate(loginForm);
+    if (Object.keys(validationErrors).length === 0) {
+      try {
+        console.log('Intentando iniciar sesión...'); // Agregar console log
+        const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm); // Usar loginForm en lugar de registerForm
+        const { token } = response.data;
+        localStorage.setItem('token', token);
+        console.log('Token de autenticación almacenado:', token); // Agregar console log
+        setMessage('Usuario autenticado exitosamente');
+        clearForm('login');
+        console.log('Inició sesión exitosamente.'); // Agregar console log
+        // Navega a la página de inicio después de iniciar sesión
+        navigate("/home");
+        // Llama a fetchData para obtener datos protegidos después de iniciar sesión exitosamente
+        fetchData();
+      } catch (error) {
+        setMessage('Error al iniciar sesión');
+        console.error('Error al iniciar sesión:', error); // Agregar console log
+      }
+    } else {
+      setLoginErrors(validationErrors as Errors);
     }
-  };
+  };  
 
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Token recuperado del almacenamiento local:', token); // Agregar console log
       if (token) {
         const response = await axios.get(`${API_BASE_URL}/protected/resource`, {
           headers: {
@@ -232,6 +248,8 @@ const LandingPage: React.FC = () => {
             <button className={styles.Button_RegisterInicio} type="submit">
               <p className={styles.text_button}>{loginFormVisible ? 'Entrar' : 'Registrarse'}</p>
             </button>
+
+            {loginFormVisible && loginErrors.username && <p className={styles.error}>{loginErrors.username}</p>}
             {!loginFormVisible && registerErrors.username && <p className={styles.error}>{registerErrors.username}</p>}
             {!loginFormVisible && registerErrors.email && <p className={styles.error}>{registerErrors.email}</p>}
             {!loginFormVisible && registerErrors.password && <p className={styles.error}>{registerErrors.password}</p>}
