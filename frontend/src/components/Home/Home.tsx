@@ -29,7 +29,7 @@ const Home: React.FC = () => {
   }, []);
 
   return (
-    <main>
+    <main className={styles.home_main} >
       <h1 className={styles.Titulo} >Radio M.F.C</h1>
       <div className={styles.container} >
         <div className={styles.redes}>

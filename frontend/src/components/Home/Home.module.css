@@ -2,8 +2,8 @@ body {
   margin: 0;
 }
 
-main {
-  background-image: url(../../../public/imagenes/fondoHome.jpg);
+.home_main {
+  background-image: url(../../../public/imagenes/compHome/wallpaperHome.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Errors } from "../../types";
 import styles from './landingpage.module.css';
-import image from '../../../public/imagenes/logo.jpg';
+import image from '../../../public/imagenes/compLanding/logo.jpg';
 import validate from './validate';
 import axios from 'axios';
 import { RegisterForm, LoginForm } from "../../types";
@@ -164,7 +164,7 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <main>
+    <main className={styles.landing_main}>
       <h1 className={styles.Titulo}>Bienvenidos a Radio de M.F.C</h1>
       <div className={styles.container}>
         <div className={styles.caja__trasera}>
