@@ -1,9 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import dotenv from 'dotenv';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+dotenv.config(); // Carga las variables de entorno desde el archivo .env
+
+ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-)
+  document.getElementById('root')
+);
