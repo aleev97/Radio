@@ -1,0 +1,72 @@
+.btn {
+    position: absolute;
+    top: 20px; /* Ajuste de la posición vertical */
+    right: 10px;
+    z-index: 1000;
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 16%;
+    height: 100vh;
+    background: rgba(0, 0, 255, 0.493);
+    border-right: 2px solid blue;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto;
+    padding-top: 170px; /* Ajusta según sea necesario */
+}
+
+.open {
+    transform: translateX(0);
+}
+
+.nav_close {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    color: white;
+    cursor: pointer;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease-in-out;
+}
+
+.nav_close:hover {
+    transform: rotate(90deg);
+}
+
+.nav_link {
+    display: block;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    font-size: 20px;
+    padding: 12px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.nav_link:hover {
+    transform: translateX(5px);
+}
+
+.nav_img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    top: 50px;
+    left: 48%;
+    transform: translateX(-50%) rotateY(0deg);
+    border: 3px solid rgb(0, 0, 105);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+.nav_item {
+    list-style: none;
+}

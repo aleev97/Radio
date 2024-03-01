@@ -9,7 +9,6 @@ import { RegisterForm, LoginForm } from "../../types";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   const [registerForm, setRegisterForm] = useState<RegisterForm>({
     username: "",
@@ -100,6 +99,8 @@ const LandingPage: React.FC = () => {
     }
   };
 
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(registerForm);
@@ -118,31 +119,30 @@ const LandingPage: React.FC = () => {
     }
   };
 
+
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(loginForm);
     if (Object.keys(validationErrors).length === 0) {
       try {
-        console.log('Intentando iniciar sesión...'); // Agregar console log
-        const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm); // Usar loginForm en lugar de registerForm
-        const { token } = response.data;
+        console.log('Intentando iniciar sesión...');
+        const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm);
+        const { token } = response.data; 
         localStorage.setItem('token', token);
-        console.log('Token de autenticación almacenado:', token); // Agregar console log
+        console.log('Token de autenticación almacenado:', token);
         setMessage('Usuario autenticado exitosamente');
         clearForm('login');
-        console.log('Inició sesión exitosamente.'); // Agregar console log
-        // Navega a la página de inicio después de iniciar sesión
+        console.log('Inició sesión exitosamente.');
         navigate("/home");
-        // Llama a fetchData para obtener datos protegidos después de iniciar sesión exitosamente
         fetchData();
       } catch (error) {
         setMessage('Error al iniciar sesión');
-        console.error('Error al iniciar sesión:', error); // Agregar console log
+        console.error('Error al iniciar sesión:', error);
       }
     } else {
       setLoginErrors(validationErrors as Errors);
     }
-  };  
+  }; 
 
   const fetchData = async () => {
     try {
