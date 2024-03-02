@@ -14,7 +14,7 @@ body {
   justify-content: center;
 }
 
-.container{
+.container {
   width: 100%;
   max-width: 800px;
   margin: auto;
@@ -26,28 +26,59 @@ body {
   position: absolute;
   top: 1%;
   width: 100%;
-  color: #fff;
-  font-size: 36px;
+  color: #fd7a00;
+  font-size: 48px;
+  font-weight: bold;
   font-family: 'Arial', sans-serif;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8),
+              -2px -2px 4px rgba(255, 255, 255, 0.527),
+              0px 2px 6px rgb(0, 0, 0); 
 }
 
 .redes {
   position: fixed;
-  bottom: 5px;
-  left: 0;
-  width: 80px;
-  height: auto;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 15%;
+  max-width: 750px;
+  height: 10%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.text {
+  color: #ffffff;
+  font-family: "Ubuntu", sans-serif;
+  font-size: 16px;
+  margin-bottom: 28px;
+  text-shadow: -1px -1px 0 #000,
+  1px -1px 0 #000,
+  -1px 1px 0 #000,
+  1px 1px 0 #000;
+}
+
+.icon_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: -10px; /* Subir un poco los iconos */
 }
 
 .redes a {
+  margin: 0 8px;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 40px;
   height: 40px;
+  border-radius: 50%;
   transition: all 0.2s ease-in-out;
 }
 
@@ -57,27 +88,42 @@ body {
 }
 
 .redes .instagram {
-  background: linear-gradient(45deg, rgba(131, 58, 180, 0.5), rgba(253, 29, 29, 0.5), rgba(245, 96, 64, 0.5));
-  border-radius: 0 10px 0 0;
+  background: linear-gradient(45deg, rgba(131, 58, 180, 0.658), rgba(253, 29, 29, 0.685), rgba(245, 97, 64, 0.699));
 }
 
 .redes .whatsApp {
-  background-color: rgba(0, 255, 0, 0.527);
-  border-radius: 0 0 10px 0;
+  background-color: rgba(0, 192, 0, 0.726);
 }
 
 .redes .tiktok {
-  background: linear-gradient(45deg, rgba(70, 221, 248, 0.5), rgba(163, 5, 184, 0.5), rgba(0, 0, 0, 0.5));
+  background: linear-gradient(45deg, rgba(70, 221, 248, 0.692), rgba(163, 5, 184, 0.644), rgba(0, 0, 0, 0.719));
 }
 
 .redes .facebook {
-  background-color: #006aff91;
+  background-color: #006affb7;
 }
 
 .redes a:hover {
-  width: 130%;
-  border-radius: 0 10px 10px 0;
-  border: 0.5px solid black;
-  box-shadow: 0px 0px 7px #000000 inset,
-              0px 0px 7px #ffffff;
+  transform: scale(1.1);
+  /* Añadir un efecto de escala en hover */
+}
+
+.instagram:hover {
+  box-shadow: 0px 0px 7px #ff0095 inset,
+    0px 0px 7px #ff0095;
+}
+
+.tiktok:hover {
+  box-shadow: 0px 0px 7px #a305b880 inset,
+    0px 0px 7px #a305b880;
+}
+
+.facebook:hover {
+  box-shadow: 0px 0px 7px #0000ff inset,
+    0px 0px 7px #0000ff;
+}
+
+.whatsApp:hover {
+  box-shadow: 0px 0px 7px #008000 inset,
+    0px 0px 7px #008000;
 }

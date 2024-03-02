@@ -11,9 +11,14 @@ const NavBar: React.FC = () => {
 
     return (
         <>
-            <button className={styles.btn} onClick={toggleNavbar}>
-                {isOpen ? 'Cerrar' : 'Abrir'} menu
+            <button className={`${styles.btn} ${isOpen ? styles.btn_open : ''}`} onClick={toggleNavbar}>
+                <span>{isOpen ? 'Cerrar' : 'Abrir'} menu</span>
+                <svg width="15px" height="10px" viewBox="0 0 13 10">
+                    <path d={isOpen ? "M11,5 L1,5": "M1,5 L11,5" }></path>
+                    <polyline points={isOpen ? "4 1 0 5 4 9": "8 1 12 5 8 9"}></polyline>
+                </svg>
             </button>
+
             <nav className={`${styles.nav} ${isOpen ? styles.open : ''}`}>
                 <div className={styles.nav_shape}></div>
                 <div className={styles.nav_close} onClick={toggleNavbar}>
@@ -21,7 +26,6 @@ const NavBar: React.FC = () => {
                 </div>
                 <div className={styles.nav_data}></div>
                 <div className={styles.nav_mask}>
-
                     <img src={image} alt="Logo" className={styles.nav_img} />
                 </div>
                 <ul className={styles.nav_list}>

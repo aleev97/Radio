@@ -1,13 +1,71 @@
 .btn {
-    position: absolute;
-    top: 20px; /* Ajuste de la posición vertical */
-    right: 10px;
+    position: fixed;
+    top: 24px;
+    left: 10px;
     z-index: 1000;
     background-color: transparent;
     border: none;
-    color: white;
     font-size: 16px;
     cursor: pointer;
+    transition: left 0.3s ease-in-out;
+}
+
+.btn_open {
+    left: calc(16% + 10px);
+}
+
+.btn:before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: 0;
+    display: block;
+    border-radius: 50px;
+    background: #b1dae7d0;
+    width: 45px;
+    height: 45px;
+    transition: all 0.3s ease;
+}
+
+.btn span {
+    position: relative;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+    text-shadow: -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+    padding-top: 8px;
+}
+
+.btn svg {
+    position: relative;
+    top: 0;
+    margin-left: 10px;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke: #ffffff;
+    stroke-width: 2;
+    stroke-opacity: 1;
+    transform: translateX(-5px);
+    transition: all 0.3s ease;
+}
+
+.btn:hover:before {
+    width: 100%;
+    background: #6da5b6e7;
+}
+
+.btn:hover svg {
+    transform: translateX(0);
+}
+
+.btn:active {
+    transform: scale(0.95);
 }
 
 .nav {
@@ -16,12 +74,13 @@
     left: 0;
     width: 16%;
     height: 100vh;
-    background: rgba(0, 0, 255, 0.493);
-    border-right: 2px solid blue;
+    background: rgba(0, 0, 255, 0.705);
+    border-right: 2px solid rgb(0, 4, 255);
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
     overflow-y: auto;
-    padding-top: 170px; /* Ajusta según sea necesario */
+    padding-top: 170px;
+    /* Ajusta según sea necesario */
 }
 
 .open {
