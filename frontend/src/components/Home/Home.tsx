@@ -4,14 +4,16 @@ import { UserData } from '../../types';
 import styles from './Home.module.css';
 
 const Home: React.FC = () => {
-  const [, setUserData] = useState<UserData | null>(null); // Eliminar la declaración de userData
+  const [, setUserData] = useState<UserData | null>(null);
+
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          const response = await axios.get<UserData>('http://localhost:3000/api/users', {
+          const response = await axios.get<UserData>(`${API_BASE_URL}/users`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -26,7 +28,7 @@ const Home: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [API_BASE_URL]);
 
   return (
     <main className={styles.home_main} >
