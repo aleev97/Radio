@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Errors } from "../../types";
 import styles from './landingpage.module.css';
-import image from '../../../public/imagenes/compLanding/logo.jpg';
 import validate from './validate';
 import axios from 'axios';
 import { RegisterForm, LoginForm } from "../../types";
@@ -256,7 +255,6 @@ const LandingPage: React.FC = () => {
           </form>
         </div>
       </div>
-      <img src={image} alt="Logo" className={styles.logo} />
       {message && (
         <div className={styles.message_container}>
           <p>{message}</p>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styles from './Navbar.module.css';
-import image from '../../../public/imagenes/compLanding/logo.jpg';
 
 const NavBar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +25,7 @@ const NavBar: React.FC = () => {
                 </div>
                 <div className={styles.nav_data}></div>
                 <div className={styles.nav_mask}>
-                    <img src={image} alt="Logo" className={styles.nav_img} />
+                <img src="/imagenes/compLanding/logo.jpg" alt="Logo" className={styles.nav_img} />
                 </div>
                 <ul className={styles.nav_list}>
                     <li className={styles.nav_item}>

@@ -3,7 +3,7 @@ body {
 }
 
 .landing_main {
-  background-image: url(../../../public/imagenes/compLanding/fondo.jpg);
+  background-image: url(/imagenes/compLanding/fondo.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -204,16 +204,6 @@ body {
 .checkboxText {
   font-size: 16px;
   margin-left: 6px;
-}
-
-.logo {
-  position: absolute; 
-  width: 100px;
-  border-radius: 50px;
-  height: auto;
-  bottom: 10px;
-  left: 10px;
-  opacity: 0.8;
 }
 
 .error {
