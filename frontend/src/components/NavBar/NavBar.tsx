@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styles from './Navbar.module.css';
+import { NavBarProps } from '../../types';
 
-const NavBar: React.FC = () => {
+const NavBar: React.FC<NavBarProps> = ({ isLoggedIn }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleNavbar = () => {
@@ -25,7 +26,7 @@ const NavBar: React.FC = () => {
                 </div>
                 <div className={styles.nav_data}></div>
                 <div className={styles.nav_mask}>
-                <img src="/imagenes/compLanding/logo.jpg" alt="Logo" className={styles.nav_img} />
+                    <img src="/imagenes/compLanding/logo.jpg" alt="Logo" className={styles.nav_img} />
                 </div>
                 <ul className={styles.nav_list}>
                     <li className={styles.nav_item}>
@@ -43,9 +44,11 @@ const NavBar: React.FC = () => {
                     <li className={styles.nav_item}>
                         <a href="#contactos" className={styles.nav_link}>Contactos</a>
                     </li>
-                    <li className={styles.nav_item}>
-                        <a href="#perfil" className={styles.nav_link}>Perfil</a>
-                    </li>
+                    {isLoggedIn && (
+                        <li className={styles.nav_item}>
+                            <a href="#perfil" className={styles.nav_link}>Perfil</a>
+                        </li>
+                    )}
                 </ul>
             </nav>
         </>

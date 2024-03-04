@@ -18,3 +18,7 @@ export interface RegisterForm {
     email: string;
     isadmin: boolean;
   }
+
+  export interface NavBarProps {
+    isLoggedIn: boolean;
+  }
