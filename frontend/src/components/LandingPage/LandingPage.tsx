@@ -18,7 +18,7 @@ const LandingPage: React.FC = () => {
 
   const [isadminChecked, setIsadminChecked] = useState(false);
   const [loginForm, setLoginForm] = useState<LoginForm>({
-    username: "", // Cambiar de email a username
+    username: "",
     password: "",
   });
 
@@ -27,7 +27,6 @@ const LandingPage: React.FC = () => {
   const [loginFormVisible, setLoginFormVisible] = useState(true);
   const [formPosition, setFormPosition] = useState(0);
   const [registerErrors, setRegisterErrors] = useState<Errors>({});
-  const [loginErrors, setLoginErrors] = useState<Errors>({});
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
@@ -121,25 +120,20 @@ const LandingPage: React.FC = () => {
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const validationErrors = validate(loginForm);
-    if (Object.keys(validationErrors).length === 0) {
-      try {
-        console.log('Intentando iniciar sesión...');
-        const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm);
-        const { token } = response.data; 
-        localStorage.setItem('token', token);
-        console.log('Token de autenticación almacenado:', token);
-        setMessage('Usuario autenticado exitosamente');
-        clearForm('login');
-        console.log('Inició sesión exitosamente.');
-        navigate("/home");
-        fetchData();
-      } catch (error) {
-        setMessage('Error al iniciar sesión');
-        console.error('Error al iniciar sesión:', error);
-      }
-    } else {
-      setLoginErrors(validationErrors as Errors);
+    try {
+      console.log('Intentando iniciar sesión...');
+      const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm);
+      const { token } = response.data; 
+      localStorage.setItem('token', token);
+      console.log('Token de autenticación almacenado:', token);
+      setMessage('Usuario autenticado exitosamente');
+      clearForm('login');
+      console.log('Inició sesión exitosamente.');
+      navigate("/home");
+      fetchData();
+    } catch (error) {
+      setMessage('Error al iniciar sesión');
+      console.error('Error al iniciar sesión:', error);
     }
   }; 
 
@@ -248,7 +242,7 @@ const LandingPage: React.FC = () => {
               <p className={styles.text_button}>{loginFormVisible ? 'Entrar' : 'Registrarse'}</p>
             </button>
 
-            {loginFormVisible && loginErrors.username && <p className={styles.error}>{loginErrors.username}</p>}
+            {loginFormVisible}
             {!loginFormVisible && registerErrors.username && <p className={styles.error}>{registerErrors.username}</p>}
             {!loginFormVisible && registerErrors.email && <p className={styles.error}>{registerErrors.email}</p>}
             {!loginFormVisible && registerErrors.password && <p className={styles.error}>{registerErrors.password}</p>}
