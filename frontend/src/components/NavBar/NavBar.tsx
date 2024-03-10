@@ -12,7 +12,7 @@ const NavBar: React.FC<NavBarProps> = ({ isLoggedIn }) => {
     return (
         <>
             <button className={`${styles.btn} ${isOpen ? styles.btn_open : ''}`} onClick={toggleNavbar}>
-                <span>{isOpen ? 'Cerrar' : 'Abrir'} menu</span>
+                <span>{isOpen ? 'Cerrar' : 'Abrir'} menú</span>
                 <svg width="15px" height="10px" viewBox="0 0 13 10">
                     <path d={isOpen ? "M11,5 L1,5": "M1,5 L11,5" }></path>
                     <polyline points={isOpen ? "4 1 0 5 4 9": "8 1 12 5 8 9"}></polyline>

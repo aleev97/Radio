@@ -31,9 +31,64 @@ body {
   font-weight: bold;
   font-family: 'Arial', sans-serif;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8),
-              -2px -2px 4px rgba(255, 255, 255, 0.527),
-              0px 2px 6px rgb(0, 0, 0); 
+    -2px -2px 4px rgba(255, 255, 255, 0.527),
+    0px 2px 6px rgb(0, 0, 0);
 }
+.contenedor_carrusel {
+  overflow: hidden;
+  height: 280px; /* Cambia la altura según tu preferencia */
+
+}
+
+.carrusel {
+  display: flex;
+  grid-template-columns: repeat(3, 1fr);
+  animation: deslizar 20s linear infinite;
+  position: relative;
+  left: 0;
+  margin-inline: auto;
+}
+
+.carrusel > img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  transition: filter 0.5s ease, opacity 0.5s ease, transform 0.5s ease, border-radius 0.4s ease; /* Añadir border-radius a la transición */
+}
+
+.carrusel > img:hover {
+  transform: scale(1.08);
+}
+
+.carrusel:has(img:hover) img:not(:hover){
+ scale: 0.8;
+ opacity: 0.9;
+ filter: grayscale(100%);
+ border-radius: 8%;
+ border: 2px solid white;
+}
+
+.item {
+  width: 15%;
+  height: auto;
+  margin-right: 30px;
+  max-width: 320px;
+  max-height: 300px;
+  border-radius: 10px;
+  border: 2px solid black;
+  margin-top: 20px; /* Ajusta el valor según tu preferencia */
+}
+
+
+@keyframes deslizar {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-217%);
+  }
+}
+
 
 .redes {
   position: fixed;
@@ -58,9 +113,9 @@ body {
   font-size: 16px;
   margin-bottom: 28px;
   text-shadow: -1px -1px 0 #000,
-  1px -1px 0 #000,
-  -1px 1px 0 #000,
-  1px 1px 0 #000;
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
 }
 
 .icon_container {
@@ -68,7 +123,8 @@ body {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin-top: -10px; /* Subir un poco los iconos */
+  margin-top: -10px;
+  /* Subir un poco los iconos */
 }
 
 .redes a {

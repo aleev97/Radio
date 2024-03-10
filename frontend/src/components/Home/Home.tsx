@@ -35,10 +35,19 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <NavBar isLoggedIn={isLoggedIn} /> {/* Siempre muestra la barra de navegación */}
+      <NavBar isLoggedIn={isLoggedIn} />
       <main className={styles.home_main}>
         <h1 className={styles.Titulo}>Radio M.F.C</h1>
         <div className={styles.container}>
+          <div className={styles.contenedor_carrusel} >
+            <div className={styles.carrusel}>
+              <img className={styles.item} src="/imagenes/compHome/Home1.jpg" alt="imagen 1" />
+              <img className={styles.item} src="/imagenes/compHome/Home2.jpg" alt="imagen 2" />
+              <img className={styles.item} src="/imagenes/compHome/Home3.jpg" alt="imagen 3" />
+              <img className={styles.item} src="/imagenes/compHome/Home4.jpg" alt="imagen 4" />
+              <img className={styles.item} src="/imagenes/compHome/Home5.jpg" alt="imagen 5" />
+            </div>
+          </div>
           <div className={styles.redes}>
             <h2 className={styles.text}>Buscanos en redes:</h2>
             <div className={styles.icon_container}>
