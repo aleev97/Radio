@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import styles from './Navbar.module.css';
 import { NavBarProps } from '../../types';
+import { Link } from "react-router-dom";
 
-const NavBar: React.FC<NavBarProps> = ({ isLoggedIn }) => {
+const NavBar: React.FC<NavBarProps> = () => { // Corregir aquí
+
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleNavbar = () => {
@@ -24,31 +26,28 @@ const NavBar: React.FC<NavBarProps> = ({ isLoggedIn }) => {
                 <div className={styles.nav_close} onClick={toggleNavbar}>
                     <i className="bx bx-x"></i>
                 </div>
-                <div className={styles.nav_data}></div>
-                <div className={styles.nav_mask}>
+                <Link to="/home" className={styles.nav_mask}>
                     <img src="/imagenes/compLanding/logo.jpg" alt="Logo" className={styles.nav_img} />
-                </div>
+                </Link>
                 <ul className={styles.nav_list}>
                     <li className={styles.nav_item}>
-                        <a href="#inicio" className={`${styles.nav_link} ${styles.active_link}`}>Inicio</a>
+                        <Link to="/home" className={`${styles.nav_link} ${styles.active_link}`}>Inicio</Link>
                     </li>
                     <li className={styles.nav_item}>
-                        <a href="#programas" className={styles.nav_link}>Programas</a>
+                        <Link to="/programas" className={styles.nav_link}>Programas</Link>
                     </li>
                     <li className={styles.nav_item}>
-                        <a href="#sobreNosotros" className={styles.nav_link}>Sobre Nosotros</a>
+                        <Link to="/sobreNosotros" className={styles.nav_link}>Sobre Nosotros</Link>
                     </li>
                     <li className={styles.nav_item}>
-                        <a href="#Eventos" className={styles.nav_link}>Eventos</a>
+                        <Link to="/Eventos" className={styles.nav_link}>Eventos</Link>
                     </li>
                     <li className={styles.nav_item}>
-                        <a href="#contactos" className={styles.nav_link}>Contactos</a>
+                        <Link to="/contactos" className={styles.nav_link}>Contactos</Link>
                     </li>
-                    {isLoggedIn && (
                         <li className={styles.nav_item}>
-                            <a href="#perfil" className={styles.nav_link}>Perfil</a>
+                            <Link to="/perfil" className={styles.nav_link}>Perfil</Link>
                         </li>
-                    )}
                 </ul>
             </nav>
         </>
