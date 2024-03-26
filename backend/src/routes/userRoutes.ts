@@ -15,7 +15,6 @@ userRoutes.use(AuthMiddleware.authenticate);
 userRoutes.post('/request-reset-password', UserController.requestPasswordReset);
 userRoutes.post('/reset-password', UserController.resetPassword);
 
-
 // Rutas protegidas 
 userRoutes.get('/', UserController.getUsers);
 userRoutes.get('/:id', UserController.getUserById);

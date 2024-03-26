@@ -8,4 +8,5 @@ export interface Publication {
     reactions?: Reaction[];
     total_reactions?: number;
     reactions_count?: { [key: string]: number };
+    programa_id?: number;
 }
