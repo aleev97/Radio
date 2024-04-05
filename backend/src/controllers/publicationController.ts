@@ -3,18 +3,10 @@ import pool from '../db';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { Publication } from "../types";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-
-interface Publication {
-    total_reactions: number;
-    reactions_count: any;
-    user_id: number;
-    content: string;
-    file_paths: string[];
-    programa_id: number;
-}
 
 const PublicationController = {
     createPublication: async (req: Request, res: Response) => {

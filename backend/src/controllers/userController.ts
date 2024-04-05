@@ -2,28 +2,15 @@ import { Request, Response } from 'express';
 import pool from '../db';
 import bcrypt from 'bcrypt';
 import AuthMiddleware from '../Middleware/AuthMiddleware';
-import jwt, { Secret, JwtPayload } from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import { User, AuthenticatedRequest } from '../types';
 
 dotenv.config();
 
-interface User {
-  id?: number;
-  username: string;
-  password: string;
-  email: string;
-  isadmin?: boolean;
-  reset_token?: string;
-  reset_token_expires?: Date;
-}
-
-interface AuthenticatedRequest extends Request {
-  user?: JwtPayload;
-}
-
 const generateResetToken = (user: User): string =>
-  jwt.sign({ userId: user.id }, process.env.SECRET_KEY as Secret, { expiresIn: '1h' });
+  jwt.sign({ userId: user.id }, process.env.SECRET_KEY as Secret, { expiresIn: '3h' });
 
 const verifyResetToken = (resetToken: string): { userId: number } | null => {
   try {

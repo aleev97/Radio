@@ -8,7 +8,7 @@ const upload = multer();
 const publicationRoutes = express.Router();
 
 // Rutas protegidas por administradores
-publicationRoutes.get('/', AuthMiddleware.authenticate, PublicationController.AllPublications);
+publicationRoutes.get('/', PublicationController.AllPublications);
 publicationRoutes.get('/:id', PublicationController.PublicationById);
 publicationRoutes.post('/', AuthMiddleware.authenticate, AuthMiddleware.isAdmin, upload.single('file'), PublicationController.createPublication);
 publicationRoutes.put('/:id', AuthMiddleware.authenticate, AuthMiddleware.isAdmin, upload.single('file'), PublicationController.updatePublication);

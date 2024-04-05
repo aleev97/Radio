@@ -1,0 +1,138 @@
+body {
+    margin: 0;
+}
+
+.about_main {
+    background-image: url(/imagenes/compHome/wallpaperHome.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    margin: 0 auto;
+}
+
+.card {
+    width: 450px;
+    height: 380px;
+    border-radius: 4%;
+    border: 2px solid rgb(0, 0, 0);
+    background: #f5f5f5;
+    overflow: visible;
+    box-shadow: inset 0 0 10px rgb(0, 0, 0); /* Sombra interior */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.card_info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 4rem;
+    padding: 0 4rem;
+}
+
+.card_img {
+    --size: 110px;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    background-image: url(/imagenes/compLanding/logo2.jpg);
+    background-size: cover; 
+    background-position: center;
+    position: absolute;
+    right: 2;
+    top: 0%;
+    transform: translateY(-50%);
+    transition: all .3s ease-in-out;
+}
+
+.card_img::before {
+    content: "";
+    border-radius: inherit;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90%;
+    height: 90%;
+    transform: translate(-50%, -50%);
+    border: 1rem solid #c8e8f5;
+}
+
+.card:hover .card_img {
+    --size: 120px;
+    width: var(--size);
+    height: var(--size);
+}
+
+.redes {
+    background: rgb(0, 0, 0);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    height: 70px;
+    width: 270px;
+}
+
+.icon_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.redes a {
+    margin: 0 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: all 0.2s ease-in-out;
+}
+
+.redes a svg {
+    width: 30px;
+    fill: #ffffff;
+}
+
+.redes a:hover {
+    transform: scale(1.2);
+}
+
+.instagram:hover {
+    border-radius: 50%;
+    border: 1px solid black;
+    background-color: rgb(197, 89, 0);
+}
+
+.tiktok:hover {
+    border-radius: 50%;
+    border: 1px solid black;
+    background-color: rgb(158, 0, 197);
+}
+
+.facebook:hover {
+    border-radius: 50%;
+    border: 1px solid black;
+    background-color: rgb(0, 17, 255);
+}
+
+.whatsApp:hover {
+    border-radius: 50%;
+    border: 1px solid black;
+    background-color: rgba(30, 255, 0, 0.589);
+}
