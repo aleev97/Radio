@@ -19,71 +19,69 @@ body {
 }
 
 .card {
-    width: 450px;
-    height: 380px;
+    width: 420px;
+    height: 600px;
     border-radius: 4%;
     border: 2px solid rgb(0, 0, 0);
     background: #f5f5f5;
     overflow: visible;
-    box-shadow: inset 0 0 10px rgb(0, 0, 0); /* Sombra interior */
+    box-shadow: inset 0 0 10px rgb(0, 0, 0);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     position: relative;
+    margin-left: 46rem;
 }
 
 .card_info {
     display: flex;
+    font-family: Arial, Helvetica, sans-serif;
     flex-direction: column;
     align-items: center;
-    margin-top: 4rem;
-    padding: 0 4rem;
+    margin-left: 1rem;
+    margin-top: -5rem;
+    padding: 2rem 2rem;
+    font-size: 20px;
 }
 
-.card_img {
-    --size: 110px;
-    width: var(--size);
-    height: var(--size);
-    border-radius: 50%;
-    transform: translateY(-50%);
-    background-image: url(/imagenes/compLanding/logo2.jpg);
-    background-size: cover; 
+.card_info b {
+    position: relative;
+    top: -40px;
+    background-color: #c8e8f5;
+    padding: 8px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.171);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    color: #333333;
+}
+
+
+.img {
+    width: 30%;
+    height: 40%;
+    background-image: url(/imagenes/compHome/Home6.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
     background-position: center;
     position: absolute;
-    right: 2;
-    top: 0%;
-    transform: translateY(-50%);
-    transition: all .3s ease-in-out;
-}
-
-.card_img::before {
-    content: "";
-    border-radius: inherit;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 90%;
-    height: 90%;
-    transform: translate(-50%, -50%);
-    border: 1rem solid #c8e8f5;
-}
-
-.card:hover .card_img {
-    --size: 120px;
-    width: var(--size);
-    height: var(--size);
+    left: 25%;
+    top: 30%;
+    border: 2px solid #000000;
+    border-radius: 20px;
+    box-shadow: 0 0 20px #000000;
 }
 
 .redes {
-    background: rgb(0, 0, 0);
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-top: 10px;
-    height: 70px;
-    width: 270px;
+    z-index: 1;
 }
 
 .icon_container {
@@ -91,6 +89,7 @@ body {
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    margin-top: -10px;
 }
 
 .redes a {
@@ -98,41 +97,53 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    border-radius: 10%;
     transition: all 0.2s ease-in-out;
 }
 
 .redes a svg {
     width: 30px;
-    fill: #ffffff;
+    fill: #000000;
+}
+
+.redes .instagram {
+    background: rgba(0, 0, 0, 0.308);
+}
+
+.redes .whatsApp {
+    background: rgba(0, 0, 0, 0.308);
+}
+
+.redes .tiktok {
+    background: rgba(0, 0, 0, 0.308);
+}
+
+.redes .facebook {
+    background: rgba(0, 0, 0, 0.308);
 }
 
 .redes a:hover {
-    transform: scale(1.2);
+    transform: scale(1.3);
 }
 
 .instagram:hover {
-    border-radius: 50%;
-    border: 1px solid black;
-    background-color: rgb(197, 89, 0);
+    background: linear-gradient(45deg, rgba(131, 58, 180, 0.658), rgba(253, 29, 29, 0.685), rgba(245, 97, 64, 0.699));
+
 }
 
 .tiktok:hover {
-    border-radius: 50%;
-    border: 1px solid black;
-    background-color: rgb(158, 0, 197);
+    background: linear-gradient(45deg, rgba(70, 221, 248, 0.692), rgba(163, 5, 184, 0.644), rgba(0, 0, 0, 0.719));
+
 }
 
 .facebook:hover {
-    border-radius: 50%;
-    border: 1px solid black;
-    background-color: rgb(0, 17, 255);
+    background: linear-gradient(45deg, #3b5998, #00aced);
+
 }
 
 .whatsApp:hover {
-    border-radius: 50%;
-    border: 1px solid black;
-    background-color: rgba(30, 255, 0, 0.589);
+    background: linear-gradient(45deg, #25D366, #128C7E);
+
 }
