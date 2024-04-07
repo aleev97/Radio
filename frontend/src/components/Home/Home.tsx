@@ -37,7 +37,7 @@ const Home: React.FC = () => {
     <>
       <NavBar isLoggedIn={isLoggedIn} />
       <main className={styles.home_main}>
-        <h1 className={styles.Titulo}>Radio M.F.C</h1>
+        <h1 className={styles.Titulo}>Sin Fronteras 98.3</h1>
         <div className={styles.container}>
           <div className={styles.contenedor_carrusel} >
             <div className={styles.carrusel}>

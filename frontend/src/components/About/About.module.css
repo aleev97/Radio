@@ -1,18 +1,19 @@
 body {
     margin: 0;
-}
+  }
 
-.about_main {
-    background-image: url(/imagenes/compHome/wallpaperHome.jpg);
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-attachment: fixed;
+  .home_main {
+    background-color: #000; /* Color de fondo negro sólido */
+    background: linear-gradient(90deg, rgb(0, 0, 0), rgba(15, 15, 15, 0.897)), 
+                linear-gradient(180deg, rgba(7, 7, 7, 0.993), rgb(7, 7, 7)),
+                linear-gradient(270deg, rgb(2, 2, 2), rgb(2, 2, 2)),
+                linear-gradient(360deg, rgb(5, 5, 5), rgb(0, 0, 0));
+    background-blend-mode: screen;
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-}
+  }
 
 .container {
     margin: 0 auto;
