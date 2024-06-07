@@ -5,6 +5,9 @@ import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import multer from 'multer';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,7 +21,20 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    const fileTypes = /jpeg|jpg|png|gif/; // Aceptar solo imágenes
+    const mimeType = fileTypes.test(file.mimetype);
+    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimeType && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only images are allowed'));
+    }
+  },
+  limits: { fileSize: 1024 * 1024 } // Limitar a 1MB
+});
 
 // Middlewares
 app.use(bodyParser.json());
@@ -27,7 +43,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(
   cors({
-    origin: 'http://localhost:5173', // Cambiar a http://localhost:5173
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // Usar variable de entorno
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   })
@@ -35,14 +51,11 @@ app.use(
 
 app.post('/api/uploads', upload.single('file'), async (req: Request, res: Response) => {
   try {
-    // Comprobar si se subió correctamente
     if (!req.file) {
       throw new Error('No file uploaded');
     }
-
-    // Obtener detalles del archivo subido
     const uploadedFileName = req.file.originalname;
-    const fileUrl = `/uploads/${encodeURIComponent(uploadedFileName)}`;
+    const fileUrl = `/uploads/${encodeURIComponent(req.file.filename)}`;
 
     res.json({ message: 'File uploaded successfully', fileUrl });
   } catch (error) {

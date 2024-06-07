@@ -16,10 +16,13 @@ const query = async (text: string, params: any[] = []): Promise<QueryResult> => 
   try {
     const result = await client.query(text, params);
     return result;
-  } catch (error: any) {  // Tipo explícito para la variable error
-    // Manejo de errores aquí
-    console.error('Error executing query:', error.message);
-    throw error;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error executing query:', error.message);
+      throw new Error('Database query error');
+    } else {
+      throw error;
+    }
   } finally {
     client.release();
   }
@@ -27,4 +30,4 @@ const query = async (text: string, params: any[] = []): Promise<QueryResult> => 
 
 export default {
   query,
-}; 
+};

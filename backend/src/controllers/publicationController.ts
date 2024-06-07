@@ -38,7 +38,7 @@ const PublicationController = {
                 content,
                 file_paths: [],
                 total_reactions: 0,
-                reactions_count: undefined,
+                reactions_count: {},
                 programa_id
             };
     
@@ -86,7 +86,7 @@ const PublicationController = {
                 file_paths: existingPublication.rows[0].file_paths as string[],
                 user_id: 0,
                 total_reactions: 0,
-                reactions_count: undefined,
+                reactions_count: {},
                 programa_id: 0
             };
 

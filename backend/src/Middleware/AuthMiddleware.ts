@@ -37,8 +37,7 @@ const AuthMiddleware: AuthMiddleware = {
       const decodedToken: JwtPayload = jwt.verify(token, secretKey) as JwtPayload;
 
       req.user = decodedToken;
-
-      AuthMiddleware.isAdmin(req, res, next);
+      next();
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         console.error('Unauthorized - Token Expired');

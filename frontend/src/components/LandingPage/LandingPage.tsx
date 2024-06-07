@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Errors } from "../../types";
+import { Errors, RegisterForm, LoginForm } from "../../types";
 import styles from './landingpage.module.css';
 import validate from './validate';
 import axios from 'axios';
-import { RegisterForm, LoginForm } from "../../types";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -117,7 +116,6 @@ const LandingPage: React.FC = () => {
     }
   };
 
-
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -129,17 +127,16 @@ const LandingPage: React.FC = () => {
       setMessage('Usuario autenticado exitosamente');
       clearForm('login');
       console.log('Inició sesión exitosamente.');
+      fetchData(token); // Llama a fetchData con el token
       navigate("/home");
-      fetchData();
     } catch (error) {
       setMessage('Error al iniciar sesión');
       console.error('Error al iniciar sesión:', error);
     }
   }; 
 
-  const fetchData = async () => {
+  const fetchData = async (token: string) => {
     try {
-      const token = localStorage.getItem('token');
       console.log('Token recuperado del almacenamiento local:', token); // Agregar console log
       if (token) {
         const response = await axios.get(`${API_BASE_URL}/protected/resource`, {

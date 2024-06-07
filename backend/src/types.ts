@@ -1,8 +1,9 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Request } from 'express';
+import { JwtPayload } from 'jsonwebtoken';
 
 export interface Publication {
     total_reactions: number;
-    reactions_count: any;
+    reactions_count: Record<string, number>; // Tipo específico para el conteo de reacciones
     user_id: number;
     content: string;
     file_paths: string[];
