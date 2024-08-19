@@ -12,6 +12,6 @@ programsRoutes.post('/', AuthMiddleware.isAdmin, ProgramaController.createProgra
 programsRoutes.delete('/:id', AuthMiddleware.isAdmin, ProgramaController.deletePrograma);
 programsRoutes.get('/', ProgramaController.getProgramas);
 programsRoutes.get('/:id', ProgramaController.getProgramaById);
-programsRoutes.put('/:id', ProgramaController.updatePrograma);
+programsRoutes.put('/:id', AuthMiddleware.isAdmin, ProgramaController.updatePrograma);
 
 export default programsRoutes;

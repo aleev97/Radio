@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import pool from '../db';
 
-const handleServerError = (res: Response<any, Record<string, any>>, error: unknown) => {
+const handleServerError = (res: Response, error: unknown) => {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
 };
@@ -11,13 +11,18 @@ const CommentController = {
         try {
             const { publication_id, user_id, parent_comment_id, content } = req.body;
 
+            // Validación de datos
             if (!publication_id || !user_id || !content) {
                 return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, and content are provided.' });
+            }
+            
+            if (parent_comment_id && isNaN(parent_comment_id)) {
+                return res.status(400).json({ error: 'Invalid parent_comment_id' });
             }
 
             const result = await pool.query(
                 'INSERT INTO comments(publication_id, user_id, parent_comment_id, content) VALUES($1, $2, $3, $4) RETURNING *',
-                [publication_id, user_id, parent_comment_id, content]
+                [publication_id, user_id, parent_comment_id || null, content]
             );
 
             res.json(result.rows[0]);
@@ -29,6 +34,10 @@ const CommentController = {
     getCommentsForPublication: async (req: Request, res: Response) => {
         try {
             const publicationId = parseInt(req.params.publication_id, 10);
+
+            if (isNaN(publicationId)) {
+                return res.status(400).json({ error: 'Invalid publication_id' });
+            }
 
             const result = await pool.query(
                 'SELECT * FROM comments WHERE publication_id = $1',
@@ -45,6 +54,10 @@ const CommentController = {
         try {
             const commentId = parseInt(req.params.id, 10);
             const { content } = req.body;
+
+            if (isNaN(commentId)) {
+                return res.status(400).json({ error: 'Invalid comment_id' });
+            }
 
             const existingComment = await pool.query(
                 'SELECT * FROM comments WHERE id = $1',
@@ -69,6 +82,10 @@ const CommentController = {
     deleteComment: async (req: Request, res: Response) => {
         try {
             const commentId = parseInt(req.params.id, 10);
+
+            if (isNaN(commentId)) {
+                return res.status(400).json({ error: 'Invalid comment_id' });
+            }
 
             const result = await pool.query(
                 'DELETE FROM comments WHERE id = $1 RETURNING *',

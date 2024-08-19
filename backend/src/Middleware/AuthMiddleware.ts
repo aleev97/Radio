@@ -7,11 +7,11 @@ dotenv.config();
 
 // Extendemos la interfaz Request para incluir la propiedad user
 interface AuthenticatedRequest extends Request {
-  user?: JwtPayload;
+  user?: JwtPayload & { isadmin?: boolean };  // Puedes ajustar según el payload de tu token
 }
 
 interface AuthMiddleware {
-  authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined>;
+  authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void>;
   comparePasswords(plainTextPassword: string, hashedPassword: string): Promise<boolean>;
   generateToken(payload: any): string;
   isAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction): void;
@@ -86,7 +86,12 @@ const AuthMiddleware: AuthMiddleware = {
   },
 
   registerAuditLog(req: AuthenticatedRequest) {
-    console.log('Audit Log:', { user: req.user, endpoint: req.originalUrl, method: req.method, timestamp: new Date() });
+    console.log('Audit Log:', {
+      user: req.user,
+      endpoint: req.originalUrl,
+      method: req.method,
+      timestamp: new Date()
+    });
   }
 };
 

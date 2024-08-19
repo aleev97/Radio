@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import styles from './Navbar.module.css';
 import { NavBarProps } from '../../types';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
-const NavBar: React.FC<NavBarProps> = () => { // Corregir aquí
-
+const NavBar: React.FC<NavBarProps> = ({ isLoggedIn }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleNavbar = () => {
@@ -30,6 +29,11 @@ const NavBar: React.FC<NavBarProps> = () => { // Corregir aquí
                     <img src="/imagenes/compLanding/logo.jpg" alt="Logo" className={styles.nav_img} />
                 </Link>
                 <ul className={styles.nav_list}>
+                    {isLoggedIn && (
+                        <li className={styles.nav_item}>
+                            <Link to="/perfil" className={styles.nav_link}>Perfil</Link>
+                        </li>
+                    )}
                     <li className={styles.nav_item}>
                         <Link to="/home" className={`${styles.nav_link} ${styles.active_link}`}>Inicio</Link>
                     </li>
@@ -44,9 +48,6 @@ const NavBar: React.FC<NavBarProps> = () => { // Corregir aquí
                     </li>
                     <li className={styles.nav_item}>
                         <Link to="/contactos" className={styles.nav_link}>Contactos</Link>
-                    </li>
-                    <li className={styles.nav_item}>
-                        <Link to="/perfil" className={styles.nav_link}>Perfil</Link>
                     </li>
                 </ul>
             </nav>
