@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ProgramData } from '../../types';
 import ProgramDetails from './programsDetail';
+import styles from './programs.module.css';
 
 const Program: React.FC = () => {
     const [programs, setPrograms] = useState<ProgramData[]>([]);
@@ -34,15 +35,21 @@ const Program: React.FC = () => {
     };
 
     return (
-        <div>
-            <h2>Nuestros Programas</h2>
-            <ul>
+        <div className={styles.programContainer}>
+            <h2 className={styles.title}>Nuestros Programas</h2>
+            <div className={styles.programGrid}>
                 {programs.map((program) => (
-                    <li key={program.id} onClick={() => handleProgramSelect(program)}>
-                        {program.titulo}
-                    </li>
+                    <div
+                        key={program.id}
+                        className={`${styles.programCard} ${styles[`programCard_${program.id}`]} ${selectedProgram?.id === program.id ? styles.selectedCard : ''}`}
+                        onClick={() => handleProgramSelect(program)}
+                    >
+                        <div className={styles.programInfo}>
+                            <h3 className={styles.programTitle}>{program.titulo}</h3>
+                        </div>
+                    </div>
                 ))}
-            </ul>
+            </div>
             
             {selectedProgram && (
                 <ProgramDetails program={selectedProgram} />
