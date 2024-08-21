@@ -10,6 +10,9 @@ const publicationRoutes = express.Router();
 // Obtener todas las publicaciones - Público
 publicationRoutes.get('/', PublicationController.AllPublications);
 
+// Obtener publicaciones de un programa específico - Público
+publicationRoutes.get('/programs/:programId/publications', PublicationController.PublicationsByProgram);
+
 // Obtener una publicación por ID - Público (considerar protección si es necesario)
 publicationRoutes.get('/:id', PublicationController.PublicationById);
 

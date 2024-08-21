@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ProgramData } from '../../types';
-import ProgramDetails from './programsDetail';
 import styles from './programs.module.css';
 
 const Program: React.FC = () => {
     const [programs, setPrograms] = useState<ProgramData[]>([]);
-    const [selectedProgram, setSelectedProgram] = useState<ProgramData | null>(null);
+    const navigate = useNavigate();
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -30,8 +30,8 @@ const Program: React.FC = () => {
         fetchPrograms();
     }, [API_BASE_URL]);
 
-    const handleProgramSelect = (program: ProgramData) => {
-        setSelectedProgram(program);
+    const handleProgramSelect = (programId: number) => {
+        navigate(`/programas/${programId}`);
     };
 
     return (
@@ -41,8 +41,8 @@ const Program: React.FC = () => {
                 {programs.map((program) => (
                     <div
                         key={program.id}
-                        className={`${styles.programCard} ${styles[`programCard_${program.id}`]} ${selectedProgram?.id === program.id ? styles.selectedCard : ''}`}
-                        onClick={() => handleProgramSelect(program)}
+                        className={`${styles.programCard} ${styles[`programCard_${program.id}`]}`}
+                        onClick={() => handleProgramSelect(program.id)}
                     >
                         <div className={styles.programInfo}>
                             <h3 className={styles.programTitle}>{program.titulo}</h3>
@@ -50,10 +50,6 @@ const Program: React.FC = () => {
                     </div>
                 ))}
             </div>
-            
-            {selectedProgram && (
-                <ProgramDetails program={selectedProgram} />
-            )}
         </div>
     );
 };
