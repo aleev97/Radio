@@ -48,7 +48,7 @@ const ProgramDetail: React.FC = () => {
             }
         };        
 
-        fetchProgramDetails();
+        fetchProgramDetails(); 
         fetchPublications();
     }, [programId, API_BASE_URL]);
 

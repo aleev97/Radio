@@ -25,4 +25,4 @@ publicationRoutes.put('/:id', AuthMiddleware.authenticate, AuthMiddleware.isAdmi
 // Eliminar una publicación - Protegido (autenticación y administrador)
 publicationRoutes.delete('/:id', AuthMiddleware.authenticate, AuthMiddleware.isAdmin, PublicationController.deletePublication);
 
-export default publicationRoutes;
+export default publicationRoutes; 

@@ -38,7 +38,7 @@ const Program: React.FC = () => {
         <div className={styles.programContainer}>
             <h2 className={styles.title}>Nuestros Programas</h2>
             <div className={styles.programGrid}>
-                {programs.map((program) => (
+                {programs.map((program) => ( 
                     <div
                         key={program.id}
                         className={`${styles.programCard} ${styles[`programCard_${program.id}`]}`}

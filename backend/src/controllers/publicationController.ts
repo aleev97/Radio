@@ -90,7 +90,7 @@ const PublicationController = {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
-    },
+    }, 
 
     PublicationsByProgram: async (req: Request, res: Response) => {
         try {

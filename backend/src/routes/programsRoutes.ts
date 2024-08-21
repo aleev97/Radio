@@ -14,4 +14,4 @@ programsRoutes.get('/', ProgramaController.getProgramas);
 programsRoutes.get('/:id', ProgramaController.getProgramaById);
 programsRoutes.put('/:id', AuthMiddleware.isAdmin, ProgramaController.updatePrograma);
 
-export default programsRoutes;
+export default programsRoutes; 
