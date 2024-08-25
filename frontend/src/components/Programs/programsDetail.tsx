@@ -7,7 +7,7 @@ const ProgramDetail: React.FC = () => {
     const { programId } = useParams<{ programId: string }>();
     const [program, setProgram] = useState<ProgramData | null>(null);
     const [publications, setPublications] = useState<Publication[]>([]);
-    
+
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     useEffect(() => {
@@ -25,7 +25,7 @@ const ProgramDetail: React.FC = () => {
                 const data: ProgramData = await response.json();
                 setProgram(data);
             } catch (error) {
-                console.error('Error fetching program details:', error);
+                console.error('Error al obtener los detalles del programa:', error);
             }
         };
 
@@ -37,33 +37,46 @@ const ProgramDetail: React.FC = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                
+
                 if (!response.ok) {
                     throw new Error(`Error: ${response.status} ${response.statusText}`);
                 }
                 const data: Publication[] = await response.json();
                 setPublications(data);
             } catch (error) {
-                console.error('Error fetching publications:', error);
+                console.error('Error al obtener las publicaciones:', error);
             }
-        };        
+        };
 
-        fetchProgramDetails(); 
+        fetchProgramDetails();
         fetchPublications();
     }, [programId, API_BASE_URL]);
 
     return (
-        <div className={styles.programPage}>
+        <div className={styles.programContainer}>
             {program ? (
                 <div>
-                    <h2>{program.titulo}</h2>
+                    <h2 className={styles.title}>{program.titulo}</h2>
                     <p>{program.descripcion}</p>
                     <div className={styles.publications}>
                         <h3>Publicaciones</h3>
                         {publications.length > 0 ? (
                             publications.map((publication) => (
                                 <div key={publication.id} className={styles.publicationCard}>
-                                    <p>{publication.content}</p>
+                                    <p className={styles.publicationContent}>{publication.content}</p>
+                                    {publication.file_paths.map((filePath, index) => {
+                                        const imageUrl = `${API_BASE_URL}${filePath}`;
+                                        console.log('Image URL:', imageUrl); // Verificar URL en la consola
+                                        return (
+                                            <img
+                                                key={index}
+                                                src={imageUrl}
+                                                alt={`Imagen de publicación ${publication.id}`}
+                                                className={styles.publicationImage}
+                                                onError={(e) => (e.currentTarget.style.display = 'none')} // Ocultar imagen si no se carga
+                                            />
+                                        );
+                                    })}
                                 </div>
                             ))
                         ) : (

@@ -71,4 +71,30 @@
     background-image: url(/imagenes/compHome/logoFZ.jpg);
 }
 
-/* Añadir más estilos según los programas disponibles */
+
+
+
+
+
+.publications {
+    width: 100%;
+    max-width: 800px; /* Limitar el ancho total de las publicaciones */
+}
+
+.publicationCard {
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.publicationContent {
+    margin-bottom: 10px;
+}
+
+.publicationImage {
+    border: 1px solid red; /* Añadir borde para depuración */
+    max-width: 100%; /* Asegurarse de que las imágenes no excedan el ancho del contenedor */
+    height: auto; /* Mantener la relación de aspecto */
+}

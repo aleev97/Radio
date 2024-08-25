@@ -48,11 +48,12 @@ const PublicationController = {
                 const fileBuffer = file.buffer;
                 const media_url = `/uploads/${file.originalname}`;
                 newPublication.file_paths.push(media_url);
-
+            
                 // Guardar la imagen en el sistema de archivos
                 const uploadPath = path.join(__dirname, '../uploads', file.originalname);
                 fs.writeFileSync(uploadPath, fileBuffer);
             }
+            
 
             const result = await pool.query(
                 'INSERT INTO publications(user_id, content, file_paths, programa_id) VALUES($1, $2, $3, $4) RETURNING *',
