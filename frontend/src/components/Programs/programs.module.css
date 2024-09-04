@@ -4,7 +4,7 @@
     font-family: 'Arial', sans-serif;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra el contenido horizontalmente */
+    align-items: center;
 }
 
 .title {
@@ -12,6 +12,11 @@
     font-size: 2rem;
     margin-bottom: 20px;
     color: #333;
+}
+
+.publications {
+    width: 100%;
+    max-width: 800px; /* Limitar el ancho total de las publicaciones */
 }
 
 .programGrid {
@@ -72,29 +77,23 @@
 }
 
 
-
-
-
-
-.publications {
-    width: 100%;
-    max-width: 800px; /* Limitar el ancho total de las publicaciones */
-}
-
 .publicationCard {
+    border: 1px solid #ddd;
+    border-radius: 8px;
     padding: 10px;
     background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .publicationContent {
     margin-bottom: 10px;
+    font-size: 1rem;
+    color: #333;
 }
 
 .publicationImage {
-    border: 1px solid red; /* Añadir borde para depuración */
-    max-width: 100%; /* Asegurarse de que las imágenes no excedan el ancho del contenedor */
-    height: auto; /* Mantener la relación de aspecto */
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
 }

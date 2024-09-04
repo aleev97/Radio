@@ -7,8 +7,10 @@ const ProgramDetail: React.FC = () => {
     const { programId } = useParams<{ programId: string }>();
     const [program, setProgram] = useState<ProgramData | null>(null);
     const [publications, setPublications] = useState<Publication[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+    const API_BASE_UPLOADS_URL = import.meta.env.VITE_API_BASE_UPLOADS_URL || '';
 
     useEffect(() => {
         const fetchProgramDetails = async () => {
@@ -25,7 +27,10 @@ const ProgramDetail: React.FC = () => {
                 const data: ProgramData = await response.json();
                 setProgram(data);
             } catch (error) {
-                console.error('Error al obtener los detalles del programa:', error);
+                if (error instanceof Error) {
+                    console.error('Error al obtener los detalles del programa:', error.message);
+                    setError('No se pudieron obtener los detalles del programa. Inténtelo de nuevo más tarde.');
+                }
             }
         };
 
@@ -44,16 +49,20 @@ const ProgramDetail: React.FC = () => {
                 const data: Publication[] = await response.json();
                 setPublications(data);
             } catch (error) {
-                console.error('Error al obtener las publicaciones:', error);
+                if (error instanceof Error) {
+                    console.error('Error al obtener las publicaciones:', error.message);
+                    setError('No se pudieron obtener las publicaciones. Inténtelo de nuevo más tarde.');
+                }
             }
         };
 
-        fetchProgramDetails();
-        fetchPublications();
+        // Ejecutar ambas solicitudes en paralelo
+        Promise.all([fetchProgramDetails(), fetchPublications()]);
     }, [programId, API_BASE_URL]);
 
     return (
         <div className={styles.programContainer}>
+            {error && <p className={styles.error}>{error}</p>}
             {program ? (
                 <div>
                     <h2 className={styles.title}>{program.titulo}</h2>
@@ -65,8 +74,7 @@ const ProgramDetail: React.FC = () => {
                                 <div key={publication.id} className={styles.publicationCard}>
                                     <p className={styles.publicationContent}>{publication.content}</p>
                                     {publication.file_paths.map((filePath, index) => {
-                                        const imageUrl = `${API_BASE_URL}${filePath}`;
-                                        console.log('Image URL:', imageUrl); // Verificar URL en la consola
+                                        const imageUrl = `${API_BASE_UPLOADS_URL}${filePath}`;
                                         return (
                                             <img
                                                 key={index}
