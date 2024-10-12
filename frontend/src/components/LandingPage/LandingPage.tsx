@@ -7,26 +7,16 @@ import axios from 'axios';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-  const [registerForm, setRegisterForm] = useState<RegisterForm>({
-    username: "",
-    email: "",
-    password: "",
-    isadmin: false
-  });
-
+  const [registerForm, setRegisterForm] = useState<RegisterForm>({ username: "", email: "", password: "", isadmin: false });
+  const [loginForm, setLoginForm] = useState<LoginForm>({ username: "", password: "" });
   const [isadminChecked, setIsadminChecked] = useState(false);
-  const [loginForm, setLoginForm] = useState<LoginForm>({
-    username: "",
-    password: "",
-  });
-
-  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState({ register: false, login: false });
   const [loginFormVisible, setLoginFormVisible] = useState(true);
-  const [formPosition, setFormPosition] = useState(0);
   const [registerErrors, setRegisterErrors] = useState<Errors>({});
   const [message, setMessage] = useState<string>("");
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     handleResize();
@@ -34,82 +24,63 @@ const LandingPage: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    const isWideScreen = window.innerWidth > 850;
-    setShowRegisterPassword(isWideScreen);
-    setShowLoginPassword(isWideScreen);
-  }, []);
-
   const handleResize = () => {
     const isWideScreen = window.innerWidth > 850;
-    setShowRegisterPassword(isWideScreen);
-    setShowLoginPassword(isWideScreen);
+    setShowPassword({ register: isWideScreen, login: isWideScreen });
   };
 
-  const handleToggleShowRegisterPassword = () => {
-    setShowRegisterPassword(prevState => !prevState);
+  const handleToggleShowPassword = (formType: "register" | "login") => {
+    setShowPassword((prevState) => ({ ...prevState, [formType]: !prevState[formType] }));
   };
 
-  const handleToggleShowLoginPassword = () => {
-    setShowLoginPassword(prevState => !prevState);
-  };
-
-  const handleFormChange = (formType: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (formType: "login" | "register") => (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (formType === 'login') {
-      setLoginForm(prevState => ({
-        ...prevState,
-        [name]: value
-      }));
+
+    if (formType === "login") {
+      setLoginForm((prevState) => ({ ...prevState, [name]: value }));
     } else {
-      setRegisterForm(prevState => ({
-        ...prevState,
-        [name]: value
-      }));
+      setRegisterForm((prevState) => ({ ...prevState, [name]: value }));
+
+      if (typingTimeout) clearTimeout(typingTimeout);
+
+      const timeout = setTimeout(() => {
+        if (value.trim()) {
+          const validationErrors = validate({ ...registerForm, [name]: value });
+          setRegisterErrors((prevErrors) => ({ ...prevErrors, [name]: validationErrors[name] || "" }));
+        } else {
+          setRegisterErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+        }
+      }, 300);
+
+      setTypingTimeout(timeout);
     }
   };
 
-  const handleMoveToLogin = () => {
-    setLoginFormVisible(true);
-    setFormPosition(0);
+  const handleFormSwitch = (toLogin: boolean) => {
+    setLoginFormVisible(toLogin);
   };
 
-  const handleMoveToRegister = () => {
-    setLoginFormVisible(false);
-    setFormPosition(33);
-  };
-
-  const clearForm = (formType: string) => {
-    if (formType === 'login') {
-      setLoginForm({
-        username: "",
-        password: ""
-      });
+  const clearForm = (formType: "login" | "register") => {
+    if (formType === "login") {
+      setLoginForm({ username: "", password: "" });
     } else {
-      setRegisterForm({
-        username: "",
-        email: "",
-        password: "",
-        isadmin: false
-      });
+      setRegisterForm({ username: "", email: "", password: "", isadmin: false });
       setIsadminChecked(false);
     }
   };
-
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(registerForm);
     if (Object.keys(validationErrors).length === 0) {
-      const isAdminValue = isadminChecked ? true : false;
       try {
-        await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isadmin: isAdminValue });
-        setMessage('Usuario registrado exitosamente');
-        clearForm('register');
+        const response = await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isadmin: isadminChecked });
+        console.log("Datos de respuesta del backend al registrarse:", response.data); // Imprimir datos de registro en la consola
+        setMessage("Usuario registrado exitosamente");
+        clearForm("register");
       } catch (error) {
-        setMessage('Error al registrar usuario');
-        console.error('Error:', error);
+        console.log("Error al registrarse:", error); // Imprimir error en la consola
+        setMessage("Error al registrar usuario");
       }
     } else {
       setRegisterErrors(validationErrors);
@@ -119,37 +90,23 @@ const LandingPage: React.FC = () => {
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      console.log('Intentando iniciar sesión...');
       const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm);
-      const { token } = response.data; 
-      localStorage.setItem('token', token);
-      console.log('Token de autenticación almacenado:', token);
-      setMessage('Usuario autenticado exitosamente');
-      clearForm('login');
-      console.log('Inició sesión exitosamente.');
-      fetchData(token); // Llama a fetchData con el token
+      console.log("Datos de respuesta del backend al iniciar sesión:", response.data); // Imprimir datos de inicio de sesión en la consola
+      const { token } = response.data;
+
+      // Guardar el token en localStorage
+      localStorage.setItem("token", token);
+      setMessage("Usuario autenticado exitosamente");
+      clearForm("login");
       navigate("/home");
     } catch (error) {
-      setMessage('Error al iniciar sesión');
-      console.error('Error al iniciar sesión:', error);
-    }
-  }; 
-
-  const fetchData = async (token: string) => {
-    try {
-      console.log('Token recuperado del almacenamiento local:', token); // Agregar console log
-      if (token) {
-        const response = await axios.get(`${API_BASE_URL}/protected/resource`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log('Respuesta del backend:', response.data);
+      if (axios.isAxiosError(error) && error.response) {
+        console.log("Error de respuesta del backend:", error.response.data); // Imprimir error de respuesta en la consola
+        setMessage(error.response.data.message || "Error al iniciar sesión");
       } else {
-        console.log('No se encontró ningún token en el localStorage');
+        console.log("Error en la solicitud:", error); // Imprimir cualquier otro error en la consola
+        setMessage("Error al iniciar sesión");
       }
-    } catch (error) {
-      console.error('Error al obtener los datos protegidos:', error);
     }
   };
 
@@ -161,29 +118,34 @@ const LandingPage: React.FC = () => {
           <div className={styles.caja__trasera_login}>
             <h3>¿Tienes cuenta?</h3>
             <p>Inicia sesión para entrar</p>
-            <button onClick={handleMoveToLogin}>Iniciar Sesión</button>
+            <button onClick={() => handleFormSwitch(true)}>Iniciar Sesión</button>
           </div>
           <div className={styles.caja__trasera_register}>
             <h3>¿No tienes una cuenta?</h3>
             <p>Regístrate para iniciar sesión</p>
-            <button onClick={handleMoveToRegister}>Registrarse</button>
+            <button onClick={() => handleFormSwitch(false)}>Registrarse</button>
           </div>
         </div>
-        <div className={styles.container_formularios} style={{ left: `${formPosition}%` }}>
-          <form className={`${styles.container_formularios} ${loginFormVisible ? styles.Formulario_login : styles.Formulario_register}`} onSubmit={loginFormVisible ? handleLoginSubmit : handleRegisterSubmit}>
-            <h2>{loginFormVisible ? 'Iniciar sesión' : 'Registrarse'}</h2>
+        <div className={styles.container_formularios} style={{ left: `${loginFormVisible ? 0 : 33}%` }}>
+          <form
+            className={`${styles.container_formularios} ${loginFormVisible ? styles.Formulario_login : styles.Formulario_register}`}
+            onSubmit={loginFormVisible ? handleLoginSubmit : handleRegisterSubmit}
+          >
+            <h2>{loginFormVisible ? "Iniciar sesión" : "Registrarse"}</h2>
+
             <input
               type="text"
               name="username"
               placeholder="Nombre de usuario"
               value={loginFormVisible ? loginForm.username : registerForm.username}
-              onChange={handleFormChange(loginFormVisible ? 'login' : 'register')}
+              onChange={handleFormChange(loginFormVisible ? "login" : "register")}
             />
+            {!loginFormVisible && registerErrors.username && <p className={styles.error}>{registerErrors.username}</p>}
 
             {loginFormVisible ? (
               <div className={styles.passwordInputContainer}>
                 <input
-                  type={showLoginPassword ? "password" : "text"}
+                  type={showPassword.login ? "password" : "text"} // Cambié aquí para mostrar la contraseña cuando se selecciona el botón
                   name="password"
                   placeholder="Contraseña"
                   value={loginForm.password}
@@ -193,9 +155,9 @@ const LandingPage: React.FC = () => {
                 <button
                   type="button"
                   className={`${styles.showHideButton} ${styles.loginShowHideButton}`}
-                  onClick={handleToggleShowLoginPassword}
+                  onClick={() => handleToggleShowPassword("login")}
                 >
-                  {showLoginPassword ? "◡" : "👁️"}
+                  {showPassword.login ? "◡" : "👁️"}
                 </button>
               </div>
             ) : (
@@ -207,9 +169,10 @@ const LandingPage: React.FC = () => {
                   value={registerForm.email}
                   onChange={handleFormChange('register')}
                 />
+                {!loginFormVisible && registerErrors.email && <p className={styles.error}>{registerErrors.email}</p>}
                 <div className={styles.passwordInputContainer}>
                   <input
-                    type={showRegisterPassword ? "password" : "text"}
+                    type={showPassword.register ? "password" : "text"} // Cambié aquí para mostrar la contraseña cuando se selecciona el botón
                     name="password"
                     placeholder="Contraseña"
                     value={registerForm.password}
@@ -219,11 +182,12 @@ const LandingPage: React.FC = () => {
                   <button
                     className={`${styles.showHideButton} ${styles.registerShowHideButton}`}
                     type="button"
-                    onClick={handleToggleShowRegisterPassword}
+                    onClick={() => handleToggleShowPassword("register")}
                   >
-                    {showRegisterPassword ? "◡" : "👁️"}
+                    {showPassword.register ? "◡" : "👁️"}
                   </button>
                 </div>
+                {!loginFormVisible && registerErrors.password && <p className={styles.error}>{registerErrors.password}</p>}
                 <label className={styles.checkboxContainer}>
                   <input
                     type="checkbox"
@@ -235,22 +199,15 @@ const LandingPage: React.FC = () => {
                 </label>
               </>
             )}
+
             <button className={styles.Button_RegisterInicio} type="submit">
-              <p className={styles.text_button}>{loginFormVisible ? 'Entrar' : 'Registrarse'}</p>
+              <p className={styles.text_button}>{loginFormVisible ? "Entrar" : "Registrarse"}</p>
             </button>
 
-            {loginFormVisible}
-            {!loginFormVisible && registerErrors.username && <p className={styles.error}>{registerErrors.username}</p>}
-            {!loginFormVisible && registerErrors.email && <p className={styles.error}>{registerErrors.email}</p>}
-            {!loginFormVisible && registerErrors.password && <p className={styles.error}>{registerErrors.password}</p>}
+            <p className={styles.mensaje}>{message}</p>
           </form>
         </div>
       </div>
-      {message && (
-        <div className={styles.message_container}>
-          <p>{message}</p>
-        </div>
-      )}
     </main>
   );
 };

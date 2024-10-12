@@ -1,3 +1,4 @@
+/* Estilos generales del body */
 body {
   margin: 0;
 }
@@ -14,8 +15,7 @@ body {
   justify-content: center;
 }
 
-
-.container{
+.container {
   width: 100%;
   max-width: 800px;
   margin: auto;
@@ -33,19 +33,17 @@ body {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-
 .caja__trasera {
   width: 45%;
   padding: 6px 90px;
   display: flex;
   justify-content: center;
-  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(3px);
   background-color: rgba(1, 128, 255, 0.3);
   position: absolute;
   top: 70%;
-  left: 95%; /* Ajusta esta cantidad según sea necesario */
-  transform: translate(-50%, -50%); /* Centra vertical y horizontalmente */
+  left: 95%;
+  transform: translate(-50%, -50%);
 }
 
 .caja__trasera div {
@@ -61,13 +59,13 @@ body {
 
 .caja__trasera div h3 {
   font-family: 'Arial', sans-serif;
-  font-size: 11.6px; /* Cambiar el tamaño de la letra */
+  font-size: 11.6px;
   text-align: center;
 }
 
 .caja__trasera div p {
   font-family: 'Arial', sans-serif;
-  font-size: 14px; /* Cambiar el tamaño de la letra */
+  font-size: 14px;
   font-weight: 200;
 }
 
@@ -94,12 +92,12 @@ body {
 .container_formularios {
   display: flex;
   align-items: center;
-  width: 30%; /* O el valor deseado */
+  width: 30%;
   max-width: 250px;
   position: absolute;
-  top: 65%; /* Centra verticalmente */
-  left: 310%; /* Centra horizontalmente */
-  transform: translate(-50%, -50%); /* Centra vertical y horizontalmente */
+  top: 65%;
+  left: 310%;
+  transform: translate(-50%, -50%);
   transition: left 500ms cubic-bezier(0.175, 0.885, 0.320, 1.275);
 }
 
@@ -110,8 +108,8 @@ body {
   background: white;
   position: absolute;
   border-radius: 20px;
-  text-align: center; /* Centrar el contenido horizontalmente */
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.801); /* Sombra interior */
+  text-align: center;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.801);
 }
 
 .container_formularios form h2 {
@@ -119,7 +117,7 @@ body {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   font-size: 25px;
   text-align: center;
-  margin-bottom:1px;
+  margin-bottom: 1px;
   color: #46A2FD;
 }
 
@@ -127,24 +125,24 @@ body {
   display: block;
   width: 80%;
   margin: 10px auto;
-  padding: 8px; /* Aumentar el padding para un aspecto más acolchado */
-  border: 2px solid #e4e2e2; /* Añadir un borde gris claro */
-  background: #8b8a8a23; /* Cambiar el color de fondo a un tono más claro */
+  padding: 8px;
+  border: 2px solid #e4e2e2;
+  background: #8b8a8a23;
   font-size: 16px;
   outline: none;
-  transition: all 0.3s; /* Añadir una transición para suavizar el cambio */
+  transition: all 0.3s;
 }
 
 .container_formularios form input:hover {
-  background: #ffffff; /* Cambiar el fondo al hacer hover */
-  border-color: #0000003a; /* Cambiar el color del borde al hacer hover */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.199); /* Agregar una sombra al hacer hover */
+  background: #ffffff;
+  border-color: #0000003a;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.199);
   border-radius: 6px;
 }
 
 .container_formularios form button {
-  width: auto; /* Asegura que el botón ocupe todo el ancho del formulario */
-  margin-top: 30px; /* Añade un margen superior para separar el botón de otros elementos */
+  width: auto;
+  margin-top: 30px;
   padding: 0px 20px;
   border: none;
   font-size: 14px;
@@ -162,12 +160,7 @@ body {
   border-radius: 10px;
 }
 
-
-.Formulario_login {
-  opacity: 1;
-  display: block;
-}
-
+.Formulario_login,
 .Formulario_register {
   opacity: 1;
   display: block;
@@ -185,7 +178,7 @@ body {
   position: absolute;
   top: -30%;
   color: black !important;
-  right: 5px; /* Ajuste fino para la posición del botón */
+  right: 5px;
   transform: translateY(-50%);
   background: transparent !important;
   border: none;
@@ -193,23 +186,36 @@ body {
   outline: none;
 }
 
+.passwordContainer {
+  display: flex;
+  align-items: center;
+}
+
+.passwordContainer input {
+  flex: 1;
+}
+
 .checkboxContainer {
   display: flex;
   align-items: center;
-  position: absolute;
-  top: 210px; /* Ajusta esta cantidad según sea necesario */
-  left: 20px; /* Ajusta esta cantidad según sea necesario */
+  position: relative;
+  top: 4px;
+  left: -110px;
 }
 
 .checkboxText {
   font-size: 16px;
-  margin-left: 6px;
+  margin-left: -120px;
 }
 
 .error {
   color: red;
-  font-size: 14px;
-  margin-top: 5px;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  text-align: left;
+  display: block;
+  width: 80%;
+  margin: 10px auto;
 }
 
 .message_container {
@@ -223,6 +229,11 @@ body {
   border-radius: 8px;
   visibility: hidden;
   animation: zoomIn 0.5s forwards, zoomOut 0.5s forwards 2.8s;
+}
+
+input[type="password"],
+input[type="text"] {
+  padding-right: 40px; /* Espacio a la derecha para el botón */
 }
 
 @keyframes zoomIn {
@@ -272,10 +283,7 @@ body {
   .container_formularios {
     top: -10px;
     left: -5px;
-    margin: auto;
-  }
-
-  .container_formularios form {
-    position: relative;
+    margin: 0 auto;
+    width: 80%;
   }
 }

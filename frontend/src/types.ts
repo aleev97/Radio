@@ -58,3 +58,9 @@ export interface ProgramListProps {
 export interface ProgramDetailsProps {
   program: ProgramData;
 }
+
+export interface ValidateParams {
+  username: string;
+  email?: string;  // El campo email puede ser opcional
+  password: string;
+}
