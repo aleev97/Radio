@@ -3,7 +3,7 @@ import styles from './Navbar.module.css';
 import { NavBarProps } from '../../types';
 import { Link } from 'react-router-dom';
 
-const NavBar: React.FC<NavBarProps> = ({ isLoggedIn }) => {
+const NavBar: React.FC<NavBarProps> = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleNavbar = () => {
@@ -12,7 +12,12 @@ const NavBar: React.FC<NavBarProps> = ({ isLoggedIn }) => {
 
     return (
         <>
-            <button className={`${styles.btn} ${isOpen ? styles.btn_open : ''}`} onClick={toggleNavbar}>
+            <button
+                className={`${styles.btn} ${isOpen ? styles.btn_open : ''}`}
+                onClick={toggleNavbar}
+                aria-expanded={isOpen}
+                aria-controls="navbar-menu"
+            >
                 <span>{isOpen ? 'Cerrar' : 'Abrir'} menú</span>
                 <svg width="15px" height="10px" viewBox="0 0 13 10">
                     <path d={isOpen ? "M11,5 L1,5" : "M1,5 L11,5"}></path>
@@ -20,39 +25,45 @@ const NavBar: React.FC<NavBarProps> = ({ isLoggedIn }) => {
                 </svg>
             </button>
 
-            <nav className={`${styles.nav} ${isOpen ? styles.open : ''}`}>
-                <div className={styles.nav_shape}></div>
-                <div className={styles.nav_close} onClick={toggleNavbar}>
-                    <i className="bx bx-x"></i>
-                </div>
-                <Link to="/home" className={styles.nav_mask}>
-                    <img src="/imagenes/compLanding/logo.jpg" alt="Logo" className={styles.nav_img} />
-                </Link>
-                <ul className={styles.nav_list}>
-                    {isLoggedIn && (
+            {isOpen && (
+                <nav
+                    className={`${styles.nav} ${isOpen ? styles.open : ''}`}
+                    id="navbar-menu"
+                    aria-hidden={!isOpen}
+                >
+                    <div className={styles.nav_shape}></div>
+                    <div className={styles.nav_close} onClick={toggleNavbar}>
+                        <i className="bx bx-x" aria-label="Cerrar menú"></i>
+                    </div>
+                    <Link to="/home" className={styles.nav_mask} onClick={toggleNavbar}>
+                        <img src="/imagenes/compLanding/logo.jpg" alt="Logo" className={styles.nav_img} />
+                    </Link>
+                    <ul className={styles.nav_list}>
+
                         <li className={styles.nav_item}>
-                            <Link to="/perfil" className={styles.nav_link}>Perfil</Link>
+                            <Link to="/perfil" className={styles.nav_link} onClick={toggleNavbar}>Perfil</Link>
                         </li>
-                    )}
-                    <li className={styles.nav_item}>
-                        <Link to="/home" className={`${styles.nav_link} ${styles.active_link}`}>Inicio</Link>
-                    </li>
-                    <li className={styles.nav_item}>
-                        <Link to="/programas" className={styles.nav_link}>Programas</Link>
-                    </li>
-                    <li className={styles.nav_item}>
-                        <Link to="/sobreNosotros" className={styles.nav_link}>Sobre Nosotros</Link>
-                    </li>
-                    <li className={styles.nav_item}>
-                        <Link to="/Eventos" className={styles.nav_link}>Eventos</Link>
-                    </li>
-                    <li className={styles.nav_item}>
-                        <Link to="/contactos" className={styles.nav_link}>Contactos</Link>
-                    </li>
-                </ul>
-            </nav>
+
+                        <li className={styles.nav_item}>
+                            <Link to="/home" className={`${styles.nav_link} ${styles.active_link}`} onClick={toggleNavbar}>Inicio</Link>
+                        </li>
+                        <li className={styles.nav_item}>
+                            <Link to="/programas" className={styles.nav_link} onClick={toggleNavbar}>Programas</Link>
+                        </li>
+                        <li className={styles.nav_item}>
+                            <Link to="/sobreNosotros" className={styles.nav_link} onClick={toggleNavbar}>Sobre Nosotros</Link>
+                        </li>
+                        <li className={styles.nav_item}>
+                            <Link to="/Eventos" className={styles.nav_link} onClick={toggleNavbar}>Eventos</Link>
+                        </li>
+                        <li className={styles.nav_item}>
+                            <Link to="/contactos" className={styles.nav_link} onClick={toggleNavbar}>Contactos</Link>
+                        </li>
+                    </ul>
+                </nav>
+            )}
         </>
     );
-}
+};
 
 export default NavBar;

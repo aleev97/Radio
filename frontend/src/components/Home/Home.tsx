@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { UserData } from '../../types';
 import styles from './Home.module.css';
-import NavBar from '../NavBar/NavBar'; // Importa el componente NavBar
 
 const Home: React.FC = () => {
   const [, setUserData] = useState<UserData | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Nuevo estado para el inicio de sesión
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -21,7 +19,6 @@ const Home: React.FC = () => {
             }
           });
           setUserData(response.data);
-          setIsLoggedIn(true); // Actualiza el estado de inicio de sesión
         } else {
           console.log('No se encontró ningún token en el localStorage');
         }
@@ -35,7 +32,7 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <NavBar isLoggedIn={isLoggedIn} />
+    
       <main className={styles.home_main}>
         <h1 className={styles.Titulo}>Sin Fronteras 98.3</h1>
         <div className={styles.container}>

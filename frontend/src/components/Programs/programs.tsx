@@ -27,7 +27,6 @@ const Program: React.FC = () => {
                 const data: ProgramData[] = await response.json();
                 setPrograms(data);
             } catch (error) {
-                // TypeScript recognizes `error` as `unknown` type by default
                 if (error instanceof Error) {
                     console.error('Error fetching programs:', error.message);
                 } else {

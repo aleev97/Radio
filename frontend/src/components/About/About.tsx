@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { UserData } from '../../types';
-import styles from './About.module.css'; // Importar los estilos CSS
-import NavBar from '../NavBar/NavBar';
+import styles from './About.module.css';
+
 
 const About: React.FC = () => {
 
   const [, setUserData] = useState<UserData | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Nuevo estado para el inicio de sesión
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -22,7 +21,6 @@ const About: React.FC = () => {
             }
           });
           setUserData(response.data);
-          setIsLoggedIn(true); // Actualiza el estado de inicio de sesión
         } else {
           console.log('No se encontró ningún token en el localStorage');
         }
@@ -36,7 +34,6 @@ const About: React.FC = () => {
 
   return (
     <>
-      <NavBar isLoggedIn={isLoggedIn} />
       <main className={styles.about_main}>
         <div className={styles.container}>
           <div className={styles.img}></div>
