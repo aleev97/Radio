@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ProgramData, Publication } from '../../types';
+import { ProgramData, Publication, Reaction } from '../../types';
 import styles from './programs.module.css';
 
 const ProgramDetail: React.FC = () => {
@@ -48,6 +48,11 @@ const ProgramDetail: React.FC = () => {
                 }
                 const data: Publication[] = await response.json();
                 setPublications(data);
+
+                // Verificar si las reacciones están llegando correctamente
+                data.forEach(publication => {
+                    console.log(`Publicación ID: ${publication.id}, Reacciones:`, publication.reactions);
+                });
             } catch (error) {
                 if (error instanceof Error) {
                     console.error('Error al obtener las publicaciones:', error.message);
@@ -60,6 +65,14 @@ const ProgramDetail: React.FC = () => {
         Promise.all([fetchProgramDetails(), fetchPublications()]);
     }, [programId, API_BASE_URL]);
 
+    const countReactions = (reactions: Reaction[]) => {
+        return reactions.reduce((acc: { [key: string]: number }, reaction) => {
+            const reactionType = reaction.reaction_type; // Usando reaction_type en lugar de type
+            acc[reactionType] = (acc[reactionType] || 0) + 1;
+            return acc;
+        }, {});
+    };
+
     return (
         <div className={styles.programContainer}>
             {error && <p className={styles.error}>{error}</p>}
@@ -70,26 +83,43 @@ const ProgramDetail: React.FC = () => {
                     <div className={styles.publications}>
                         <h3>Publicaciones</h3>
                         {publications.length > 0 ? (
-                            publications.map((publication) => (
-                                <div key={publication.id} className={styles.publicationCard}>
-                                    <p className={styles.publicationContent}>{publication.content}</p>
-                                    {publication.file_paths.map((filePath, index) => {
-                                        const imageUrl = `${API_BASE_UPLOADS_URL}${filePath}`;
-                                        return (
-                                            <img
-                                                key={index}
-                                                src={imageUrl}
-                                                alt={`Imagen de publicación ${publication.id}`}
-                                                className={styles.publicationImage}
-                                                onError={(e) => (e.currentTarget.style.display = 'none')} // Ocultar imagen si no se carga
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            ))
+                            publications.map((publication) => {
+                                const reactionsCount = countReactions(publication.reactions || []);
+                                return (
+                                    <div key={publication.id} className={styles.publicationCard}>
+                                        <p className={styles.publicationContent}>{publication.content}</p>
+                                        {publication.file_paths.map((filePath, index) => {
+                                            const imageUrl = `${API_BASE_UPLOADS_URL}${filePath}`;
+                                            return (
+                                                <img
+                                                    key={index}
+                                                    src={imageUrl}
+                                                    alt={`Imagen de publicación ${publication.id}`}
+                                                    className={styles.publicationImage}
+                                                    onError={(e) => (e.currentTarget.style.display = 'none')}
+                                                />
+                                            );
+                                        })}
+                                        <div className={styles.reactionsContainer}>
+                                            <h4>Reacciones</h4>
+                                            {Object.keys(reactionsCount).length > 0 ? (
+                                                Object.entries(reactionsCount).map(([reactionType, count]) => (
+                                                    <span key={reactionType} className={styles.reactionItem}>
+                                                        {reactionType}: {count}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <p>No hay reacciones para esta publicación.</p>
+                                            )}
+                                            <p>Total de reacciones: {publication.reactions ? publication.reactions.length : 0}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })
                         ) : (
                             <p>No hay publicaciones disponibles.</p>
                         )}
+
                     </div>
                 </div>
             ) : (

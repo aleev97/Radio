@@ -10,12 +10,12 @@ const ReactionController = {
 
             // Validar datos
             if (!publication_id || !user_id || !reaction_type || !programa_id || !validReactionTypes.includes(reaction_type)) {
-                return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, and a valid reaction_type are provided.' });
+                return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, programa_id, and a valid reaction_type are provided.' });
             }
 
             // Verificar si la reacción ya existe
             const existingReaction = await pool.query(
-                'SELECT * FROM reactions WHERE publication_id = $1 AND user_id = $2 AND reaction_type = $3 AND programa_id =$4',
+                'SELECT * FROM reactions WHERE publication_id = $1 AND user_id = $2 AND reaction_type = $3 AND programa_id = $4',
                 [publication_id, user_id, reaction_type, programa_id]
             );
 
@@ -25,14 +25,14 @@ const ReactionController = {
 
             // Agregar la nueva reacción
             const result = await pool.query(
-                'INSERT INTO reactions(publication_id, user_id, reaction_type, programa_id) VALUES($1, $2, $3, $4) RETURNING *',
+                'INSERT INTO reactions (publication_id, user_id, reaction_type, programa_id) VALUES ($1, $2, $3, $4) RETURNING *',
                 [publication_id, user_id, reaction_type, programa_id]
             );
 
             // Actualizar la publicación con las nuevas estadísticas de reacciones
             await ReactionController.updatePublicationReactions(publication_id);
 
-            res.json(result.rows[0]);
+            res.status(201).json(result.rows[0]); // Cambiado a 201 Created
 
         } catch (error) {
             ReactionController.handleServerError(res, error);
@@ -45,7 +45,7 @@ const ReactionController = {
 
             // Validar datos
             if (!publication_id || !user_id || !reaction_type || !programa_id || !validReactionTypes.includes(reaction_type)) {
-                return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, and a valid reaction_type are provided.' });
+                return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, programa_id, and a valid reaction_type are provided.' });
             }
 
             // Eliminar la reacción
@@ -61,7 +61,7 @@ const ReactionController = {
             // Actualizar la publicación con las nuevas estadísticas de reacciones
             await ReactionController.updatePublicationReactions(publication_id);
 
-            res.json(result.rows[0]);
+            res.json(result.rows[0]); // Regresar la reacción eliminada
 
         } catch (error) {
             ReactionController.handleServerError(res, error);
@@ -85,15 +85,15 @@ const ReactionController = {
             // Actualizar la publicación con las nuevas estadísticas de reacciones
             await pool.query(
                 'UPDATE publications SET total_reactions = $1, reactions_count = $2 WHERE id = $3',
-                [totalReactions, reactionsCount, publication_id]
+                [totalReactions, JSON.stringify(reactionsCount), publication_id] // Convierte a JSON para almacenar el objeto
             );
         } catch (error) {
-            console.error(error);
+            console.error('Error updating publication reactions:', error);
         }
     },
 
     handleServerError: (res: Response, error: any) => {
-        console.error(error);
+        console.error('Server Error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };

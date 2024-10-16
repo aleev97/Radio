@@ -19,6 +19,32 @@
     max-width: 800px; /* Limitar el ancho total de las publicaciones */
 }
 
+.reactionsContainer {
+    margin-top: 15px;
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.reactionItem {
+    display: inline-block;
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.reactionItem span {
+    font-weight: bold;
+}
+
+.reaction {
+    margin-right: 10px;
+}
+
 .programGrid {
     display: flex;
     flex-direction: column; /* Alinear las tarjetas en una columna */

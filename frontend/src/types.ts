@@ -4,7 +4,7 @@ export interface Errors {
 
 export interface Reaction {
   id?: number;
-  type: string;
+  reaction_type: string;
   user_id: number;
   publication_id: number;
 }
