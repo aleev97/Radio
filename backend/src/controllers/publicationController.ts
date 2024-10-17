@@ -39,7 +39,8 @@ const PublicationController = {
                 file_paths: [],
                 total_reactions: 0,
                 reactions_count: {},
-                programa_id
+                programa_id,
+                username: ""
             };
 
             // Si se proporciona un archivo, manejarlo
@@ -145,7 +146,8 @@ const PublicationController = {
                 user_id: 0,
                 total_reactions: 0,
                 reactions_count: {},
-                programa_id: 0
+                programa_id: 0,
+                username: ""
             };
 
             let originalMediaUrls: string[] = [];

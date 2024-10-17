@@ -1,8 +1,10 @@
 import { Reaction } from "./reactionModel";
+
 export interface Publication {
     id?: number;
     content: string;
     user_id: number;
+    username: string; // Nueva propiedad para almacenar el nombre de usuario
     file_paths: string[];
     created_at?: Date;
     reactions?: Reaction[];

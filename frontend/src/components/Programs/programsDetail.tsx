@@ -48,11 +48,6 @@ const ProgramDetail: React.FC = () => {
                 }
                 const data: Publication[] = await response.json();
                 setPublications(data);
-
-                // Verificar si las reacciones están llegando correctamente
-                data.forEach(publication => {
-                    console.log(`Publicación ID: ${publication.id}, Reacciones:`, publication.reactions);
-                });
             } catch (error) {
                 if (error instanceof Error) {
                     console.error('Error al obtener las publicaciones:', error.message);
@@ -88,6 +83,7 @@ const ProgramDetail: React.FC = () => {
                                 return (
                                     <div key={publication.id} className={styles.publicationCard}>
                                         <p className={styles.publicationContent}>{publication.content}</p>
+                                        <p className={styles.publicationUser}>Publicado por: {publication.username}</p>
                                         {publication.file_paths.map((filePath, index) => {
                                             const imageUrl = `${API_BASE_UPLOADS_URL}${filePath}`;
                                             return (
@@ -104,9 +100,19 @@ const ProgramDetail: React.FC = () => {
                                             <h4>Reacciones</h4>
                                             {Object.keys(reactionsCount).length > 0 ? (
                                                 Object.entries(reactionsCount).map(([reactionType, count]) => (
-                                                    <span key={reactionType} className={styles.reactionItem}>
-                                                        {reactionType}: {count}
-                                                    </span>
+                                                    <div key={reactionType} className={styles.reactionItem}>
+                                                        <span>{reactionType}: {count}</span>
+                                                        {/* Muestra los nombres de usuario para cada reacción */}
+                                                        <div>
+                                                            {publication.reactions
+                                                                ?.filter(reaction => reaction.reaction_type === reactionType)
+                                                                .map(reaction => (
+                                                                    <span key={reaction.id} className={styles.reactionUser}>
+                                                                        {reaction.username} {/* Mostrar el nombre de usuario de la reacción */}
+                                                                    </span>
+                                                                ))}
+                                                        </div>
+                                                    </div>
                                                 ))
                                             ) : (
                                                 <p>No hay reacciones para esta publicación.</p>
@@ -119,7 +125,6 @@ const ProgramDetail: React.FC = () => {
                         ) : (
                             <p>No hay publicaciones disponibles.</p>
                         )}
-
                     </div>
                 </div>
             ) : (

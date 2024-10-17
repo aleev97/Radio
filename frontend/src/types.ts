@@ -7,12 +7,14 @@ export interface Reaction {
   reaction_type: string;
   user_id: number;
   publication_id: number;
+  username: string;
 }
 
 export interface Publication {
   id?: number;
   content: string;
   user_id: number;
+  username: string; // Nueva propiedad para almacenar el nombre de usuario
   file_paths: string[];
   created_at?: Date;
   reactions?: Reaction[];
@@ -20,6 +22,7 @@ export interface Publication {
   reactions_count?: { [key: string]: number };
   programa_id?: number;
 }
+
 
 export interface RegisterForm {
   username: string;

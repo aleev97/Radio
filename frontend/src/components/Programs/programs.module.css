@@ -122,4 +122,142 @@
     max-width: 100%;
     height: auto;
     border-radius: 5px;
+}.programContainer {
+    padding: 20px;
+    background-color: #f5f5f5;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%; /* Asegura que el contenedor ocupe el ancho completo */
+}
+
+.title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.publications {
+    width: 100%;
+    max-width: 800px; /* Limitar el ancho total de las publicaciones */
+}
+
+.publicationCard {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px; /* Aumenté un poco el padding para mejor separación */
+    background-color: #fff;
+    margin-bottom: 20px; /* Espacio entre las publicaciones */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.publicationContent {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.publicationImage {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.publicationAuthor {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.reactionsContainer {
+    margin-top: 15px;
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.reactionItem {
+    display: inline-block;
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.reactionItem span {
+    font-weight: bold;
+}
+
+.reactionAuthor {
+    display: block;
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 5px;
+}
+
+/* Program Card Styles */
+.programGrid {
+    display: flex;
+    flex-direction: column; /* Alinear las tarjetas en una columna */
+    gap: 30px; /* Espacio entre las tarjetas */
+    width: 100%;
+    max-width: 300px; /* Limitar el ancho total de las tarjetas para centrar */
+}
+
+.programCard {
+    position: relative;
+    height: 326px;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    width: 100%; /* Asegura que cada tarjeta ocupe el ancho completo del grid */
+}
+
+.programCard:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.selectedCard {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+}
+
+.programInfo {
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.programTitle {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Estilos específicos para cada tarjeta de programa */
+.programCard_1 {
+    background-image: url(/imagenes/compHome/logoIJ.jpg);
+}
+
+.programCard_2 {
+    background-image: url(/imagenes/compHome/logoFZ.jpg);
 }
