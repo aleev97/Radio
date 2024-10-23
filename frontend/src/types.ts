@@ -10,7 +10,19 @@ export interface Reaction {
   username: string;
 }
 
+export interface Comment {
+  id?: number;
+  publication_id: number;
+  user_id: number;
+  username?: string; // Nueva propiedad para almacenar el nombre de usuario
+  parent_comment_id?: number;
+  content: string;
+  created_at?: Date;
+  programa_id?: number;
+}
+
 export interface Publication {
+  comments?: Comment[];
   id?: number;
   content: string;
   user_id: number;
@@ -22,7 +34,6 @@ export interface Publication {
   reactions_count?: { [key: string]: number };
   programa_id?: number;
 }
-
 
 export interface RegisterForm {
   username: string;
@@ -64,6 +75,6 @@ export interface ProgramDetailsProps {
 
 export interface ValidateParams {
   username: string;
-  email?: string;  // El campo email puede ser opcional
+  email?: string;
   password: string;
 }
