@@ -8,12 +8,10 @@ const ReactionController = {
         try {
             const { publication_id, user_id, reaction_type, programa_id } = req.body;
 
-            // Validar datos
             if (!publication_id || !user_id || !reaction_type || !programa_id || !validReactionTypes.includes(reaction_type)) {
-                return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, programa_id, and a valid reaction_type are provided.' });
+                return res.status(400).json({ error: 'Invalid data. Ensure publication_id, user_id, programa_id, and a valid reaction_type are provided.' });
             }
 
-            // Verificar si la reacción ya existe
             const existingReaction = await pool.query(
                 'SELECT * FROM reactions WHERE publication_id = $1 AND user_id = $2 AND reaction_type = $3 AND programa_id = $4',
                 [publication_id, user_id, reaction_type, programa_id]
@@ -23,17 +21,23 @@ const ReactionController = {
                 return res.status(400).json({ error: 'This reaction already exists.' });
             }
 
-            // Agregar la nueva reacción
+            const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [user_id]);
+            if (userResult.rows.length === 0) {
+                return res.status(404).json({ error: 'User not found.' });
+            }
+
+            const username = userResult.rows[0].username;
+
             const result = await pool.query(
-                'INSERT INTO reactions (publication_id, user_id, reaction_type, programa_id) VALUES ($1, $2, $3, $4) RETURNING *',
-                [publication_id, user_id, reaction_type, programa_id]
+                `INSERT INTO reactions (publication_id, user_id, reaction_type, programa_id, username) 
+                 VALUES ($1, $2, $3, $4, $5) 
+                 RETURNING id, publication_id, user_id, reaction_type, programa_id, username`,
+                [publication_id, user_id, reaction_type, programa_id, username]
             );
 
-            // Actualizar la publicación con las nuevas estadísticas de reacciones
             await ReactionController.updatePublicationReactions(publication_id);
 
-            res.status(201).json(result.rows[0]); // Cambiado a 201 Created
-
+            res.status(201).json(result.rows[0]);
         } catch (error) {
             ReactionController.handleServerError(res, error);
         }
@@ -43,14 +47,21 @@ const ReactionController = {
         try {
             const { publication_id, user_id, reaction_type, programa_id } = req.body;
 
-            // Validar datos
             if (!publication_id || !user_id || !reaction_type || !programa_id || !validReactionTypes.includes(reaction_type)) {
-                return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, programa_id, and a valid reaction_type are provided.' });
+                return res.status(400).json({ error: 'Invalid data. Ensure publication_id, user_id, programa_id, and a valid reaction_type are provided.' });
             }
 
-            // Eliminar la reacción
+            const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [user_id]);
+            if (userResult.rows.length === 0) {
+                return res.status(404).json({ error: 'User not found.' });
+            }
+
+            const username = userResult.rows[0].username;
+
             const result = await pool.query(
-                'DELETE FROM reactions WHERE publication_id = $1 AND user_id = $2 AND reaction_type = $3 AND programa_id = $4 RETURNING *',
+                `DELETE FROM reactions 
+                 WHERE publication_id = $1 AND user_id = $2 AND reaction_type = $3 AND programa_id = $4 
+                 RETURNING id, publication_id, user_id, reaction_type, programa_id, username`,
                 [publication_id, user_id, reaction_type, programa_id]
             );
 
@@ -58,11 +69,9 @@ const ReactionController = {
                 return res.status(404).json({ error: 'Reaction not found.' });
             }
 
-            // Actualizar la publicación con las nuevas estadísticas de reacciones
             await ReactionController.updatePublicationReactions(publication_id);
 
-            res.json(result.rows[0]); // Regresar la reacción eliminada
-
+            res.json(result.rows[0]);
         } catch (error) {
             ReactionController.handleServerError(res, error);
         }
@@ -70,7 +79,6 @@ const ReactionController = {
 
     updatePublicationReactions: async (publication_id: number) => {
         try {
-            // Obtener la cantidad total de reacciones y el desglose por tipo de reacción
             const [totalReactionsResult, reactionsCountResult] = await Promise.all([
                 pool.query('SELECT COUNT(*) as total_reactions FROM reactions WHERE publication_id = $1', [publication_id]),
                 pool.query('SELECT reaction_type, COUNT(*) as count FROM reactions WHERE publication_id = $1 GROUP BY reaction_type', [publication_id]),
@@ -82,10 +90,9 @@ const ReactionController = {
                 return acc;
             }, {});
 
-            // Actualizar la publicación con las nuevas estadísticas de reacciones
             await pool.query(
                 'UPDATE publications SET total_reactions = $1, reactions_count = $2 WHERE id = $3',
-                [totalReactions, JSON.stringify(reactionsCount), publication_id] // Convierte a JSON para almacenar el objeto
+                [totalReactions, JSON.stringify(reactionsCount), publication_id]
             );
         } catch (error) {
             console.error('Error updating publication reactions:', error);

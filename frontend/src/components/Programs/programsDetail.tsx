@@ -10,7 +10,8 @@ const ProgramDetail: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
     const [reactions, setReactions] = useState<{ [key: number]: Reaction[] }>({});
-    const [showMoreReactions, setShowMoreReactions] = useState<{ [key: number]: boolean }>({});
+    const [showMoreReactions] = useState<{ [key: number]: boolean }>({});
+    const [modalVisible, setModalVisible] = useState<{ [key: number]: boolean }>({});
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
     const API_BASE_UPLOADS_URL = import.meta.env.VITE_API_BASE_UPLOADS_URL || '';
@@ -87,7 +88,7 @@ const ProgramDetail: React.FC = () => {
                 if (pub.id === publicationId) {
                     const newCommentObj: Comment = {
                         publication_id: pub.id!,
-                        user_id: 1,
+                        user_id: 1, // Ajusta esto según el usuario autenticado
                         content: newComment[publicationId],
                         created_at: new Date(),
                     };
@@ -105,15 +106,23 @@ const ProgramDetail: React.FC = () => {
 
     const countReactions = (reactions: Reaction[]) => {
         return reactions.reduce((acc: { [key: string]: { count: number, users: string[] } }, reaction) => {
-            const reactionType = reaction.reaction_type;
+            const { reaction_type: reactionType, username } = reaction;
+
             if (!acc[reactionType]) {
                 acc[reactionType] = { count: 0, users: [] };
             }
+
             acc[reactionType].count += 1;
-            acc[reactionType].users.push(reaction.username);
+
+            // Añadimos el usuario solo si no está vacío o ya en la lista, para evitar duplicados y vacíos
+            if (username && !acc[reactionType].users.includes(username)) {
+                acc[reactionType].users.push(username);
+            }
+
             return acc;
         }, {});
     };
+
 
     const handleReaction = async (publicationId: number, reactionType: string) => {
         const token = localStorage.getItem('token');
@@ -135,6 +144,25 @@ const ProgramDetail: React.FC = () => {
         }
     };
 
+    const toggleModal = (publicationId: number) => {
+        setModalVisible(prev => ({ ...prev, [publicationId]: !prev[publicationId] }));
+    };
+
+    const getReactionClass = (reactionType: string) => {
+        switch (reactionType) {
+            case 'Me gusta':
+                return styles.reactionLike;
+            case 'Me encanta':
+                return styles.reactionLove;
+            case 'Me interesa':
+                return styles.reactionInterest;
+            case 'Me entristece':
+                return styles.reactionSad;
+            default:
+                return ''; // Clase por defecto si no coincide
+        }
+    };
+
     return (
         <div className={styles.programContainer}>
             {error && <p className={styles.error}>{error}</p>}
@@ -146,7 +174,7 @@ const ProgramDetail: React.FC = () => {
                         <h3>Publicaciones</h3>
                         {publications.length > 0 ? (
                             publications.map((publication) => {
-                                const reactionsCount = countReactions(reactions[publication.id!] || {});
+                                const reactionsCount = countReactions(reactions[publication.id!] || []);
                                 const totalReactions = Object.values(reactionsCount).reduce((total, { count }) => total + count, 0);
 
                                 return (
@@ -170,63 +198,126 @@ const ProgramDetail: React.FC = () => {
                                                 );
                                             })}
                                         </div>
-                                        <div className={styles.reactionsContainer}>
-                                            <h4>Reacciones: {totalReactions}</h4>
-                                            {totalReactions > 0 ? (
-                                                <>
-                                                    {Object.entries(reactionsCount).slice(0, showMoreReactions[publication.id!] ? totalReactions : 3).map(([reactionType, { count, users }]) => (
+                                        <div className={styles.reactionButtons}>
+                                            {[
+                                                { emoji: '👍', type: 'Me gusta' },
+                                                { emoji: '❤️', type: 'Me encanta' },
+                                                { emoji: '😲', type: 'Me interesa' },
+                                                { emoji: '😥', type: 'Me entristece' },
+                                            ].map(({ emoji, type }) => (
+                                                <button
+                                                    key={type}
+                                                    onClick={() => handleReaction(publication.id!, type)}
+                                                    className={styles.reactionButton}
+                                                    aria-label={`Reacción: ${type}`}
+                                                >
+                                                    <span className={styles.emoji}>{emoji}</span>
+                                                    <span className={styles.tooltip}>{type}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <h4>Reacciones: {totalReactions}</h4>
+                                        {totalReactions > 0 ? (
+                                            <>
+                                                {Object.entries(reactionsCount)
+                                                    .slice(0, showMoreReactions[publication.id!] ? totalReactions : 2)
+                                                    .map(([reactionType, { count, users }]) => (
                                                         <div key={reactionType} className={styles.reactionItem}>
-                                                            <span>{reactionType}: {count} {users.join(', ')}</span>
+                                                            <span>
+                                                                {/* Mostrar el emoji junto al tipo de reacción */}
+                                                                {[
+                                                                    { emoji: '👍', type: 'Me gusta' },
+                                                                    { emoji: '❤️', type: 'Me encanta' },
+                                                                    { emoji: '😲', type: 'Me interesa' },
+                                                                    { emoji: '😥', type: 'Me entristece' },
+                                                                ]
+                                                                    .find((reaction) => reaction.type === reactionType)?.emoji}
+                                                                {' '}
+                                                                {reactionType}: {count} {users.slice(0, 3).join(', ')}
+                                                            </span>
+                                                            {users.length > 3 && (
+                                                                <span className={styles.moreUsers}>
+                                                                    {' '}
+                                                                    y otros {users.length - 3} usuarios
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     ))}
-                                                    {totalReactions > 3 && (
-                                                        <button onClick={() => setShowMoreReactions(prev => ({ ...prev, [publication.id!]: !prev[publication.id!] }))} className={styles.toggleReactionsButton}>
-                                                            {showMoreReactions[publication.id!] ? 'Ver menos' : 'Ver todas las reacciones'}
-                                                        </button>
-                                                    )}
-                                                </>
-                                            ) : (
-                                                <p>No hay reacciones para esta publicación.</p>
-                                            )}
-                                            <div className={styles.reactionButtons}>
-                                                {['👍', '❤️', '🤩', '😥'].map((emoji, index) => {
-                                                    const reactionType = ['Me gusta', 'Me encanta', 'Me interesa', 'Me entristece'][index];
-                                                    return (
-                                                        <button key={reactionType} onClick={() => handleReaction(publication.id!, reactionType)} className={styles.reactionButton}>
-                                                            {emoji}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                        <div className={styles.commentsContainer}>
-                                            <h4>Comentarios: {publication.comments?.length || 0}</h4>
-                                            {publication.comments && publication.comments.length > 0 ? (
-                                                publication.comments.map((comment) => (
-                                                    <div key={comment.id} className={styles.comment}>
-                                                        <span className={styles.commentUser}>{comment.username}</span>
-                                                        <p className={styles.commentContent}>{comment.content}</p>
+                                                {totalReactions > 3 && (
+                                                    <button
+                                                        onClick={() => toggleModal(publication.id!)}
+                                                        className={styles.reactionModalButton}
+                                                    >
+                                                        <span>Ver todas las reacciones</span>
+                                                    </button>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <span>No hay reacciones todavía.</span>
+                                        )}
+                                        {modalVisible[publication.id!] && (
+                                            <div className={styles.modal}>
+                                                <div className={styles.modalContent}>
+                                                    <span
+                                                        className={styles.closeModalButton}
+                                                        onClick={() => toggleModal(publication.id!)}
+                                                    >
+                                                        &times;
+                                                    </span>
+                                                    <div className={styles.reactionHeader}>
+                                                        <h3 className={styles.modalTitle}>Reacciones: {totalReactions}</h3>
+                                                        <div className={styles.reactions}>
+                                                            {Object.entries(reactionsCount).map(([reactionType, { count, users }]) => (
+                                                                <div key={reactionType} className={styles.reactionItems}>
+                                                                    <span className={getReactionClass(reactionType)}>
+                                                                        {[{ emoji: '👍', type: 'Me gusta' },
+                                                                        { emoji: '❤️', type: 'Me encanta' },
+                                                                        { emoji: '😲', type: 'Me interesa' },
+                                                                        { emoji: '😥', type: 'Me entristece' }]
+                                                                            .find((reaction) => reaction.type === reactionType)?.emoji}
+                                                                        {' '}
+                                                                        {reactionType}: {count}
+                                                                    </span>
+                                                                    <div className={styles.separatorLine}></div>
+                                                                    <div className={styles.usersList}>
+                                                                        {users.map((user, index) => (
+                                                                            <div key={index} className={styles.user}>
+                                                                                {user}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+
+                                                        </div>
                                                     </div>
-                                                ))
-                                            ) : (
-                                                <p>No hay comentarios para esta publicación.</p>
-                                            )}
-                                            <input
-                                                type="text"
-                                                value={newComment[publication.id!] || ''}
-                                                onChange={(e) => handleCommentChange(publication.id!, e.target.value)}
-                                                placeholder="Escribe un comentario..."
-                                                className={styles.commentInput}
-                                            />
-                                            <button onClick={() => handleCommentSubmit(publication.id!)} className={styles.commentSubmitButton}>
-                                                Comentar
-                                            </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className={styles.comments}>
+                                            <h4>Comentarios</h4>
+                                            {publication.comments?.map((comment, index) => (
+                                                <div key={index} className={styles.comment}>
+                                                    <span className={styles.commentUser}>{comment.username}</span>
+                                                    <span className={styles.commentContent}>{comment.content}</span>
+                                                </div>
+                                            ))}
+                                            <div className={styles.newComment}>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Agregar un comentario..."
+                                                    value={newComment[publication.id!] || ''}
+                                                    onChange={(e) => handleCommentChange(publication.id!, e.target.value)}
+                                                />
+                                                <button onClick={() => handleCommentSubmit(publication.id!)}>Enviar</button>
+                                            </div>
                                         </div>
                                     </div>
                                 );
                             })
                         ) : (
-                            <p>No hay publicaciones para este programa.</p>
+                            <p>No hay publicaciones disponibles.</p>
                         )}
                     </div>
                 </div>

@@ -15,13 +15,10 @@
     color: #333;
     text-align: center;
 }
+
 .description {
     font-size: 1.2rem;
     color: #666;
-}
-
-.reaction {
-    margin-right: 10px;
 }
 
 .programGrid {
@@ -156,15 +153,38 @@
     font-family:Arial, Helvetica, sans-serif;
 }
 
-.reactionItem {
+.reactionItem{
+    font-family: Arial, Helvetica, sans-serif;
     display: inline-block;
     padding: 1px 12px;
     font-size: 14px;
-    color: #1f1f1f;
+    color: #000000;
+    font-weight: bold;
 }
 
-.reactionItem span {
+.reactionItems {
+    font-family: Arial, Helvetica, sans-serif;
+    display: inline-block;
+    padding: 1px 12px;
+    font-size: 14px;
+    color: #000000;
     font-weight: bold;
+}
+
+.reactionLike {
+    color: blue; 
+}
+
+.reactionLove {
+    color: red; 
+}
+
+.reactionInterest {
+    color: orange; 
+}
+
+.reactionSad {
+    color: purple; 
 }
 
 .toggleReactionsButton {
@@ -176,21 +196,169 @@
 
 .reactionButtons {
     display: flex;
-    width: 30%;
-    gap: 10px;
+    justify-content: space-around;
+    width: 35%;
     margin-top: 10px;
-    background-color: #dfdfdf;
-    padding: 6px 4px;
-    border-radius: 10px;
-    box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.3),
-                0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 30px;
+    background-color: #ffffff;
+    box-shadow: 
+        inset 5px 5px 10px rgba(0, 0, 0, 0.5),  /* Sombra oscura interna */
+        inset -5px -5px 10px rgba(0, 0, 0, 0.2),  /* Sombra clara interna */
+        0 2px 10px rgba(255, 255, 255, 0.356); /* Sombra externa */
 }
 
 .reactionButton {
+    position: relative;
     background: transparent;
     border: none;
-    font-size: 1.6rem;
     cursor: pointer;
+    font-size: 1.8rem;
+    transition: transform 0.2s ease;
+}
+
+.reactionButton:hover {
+    transform: scale(1.2);
+}
+
+.reactionButton:active {
+    transform: scale(0.9); /* Efecto de pulsación */
+}
+
+.tooltip {
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    text-align: center;
+    border-radius: 20px;
+    padding: 5px;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1;
+}
+
+.reactionButton:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.reactionModalButton {
+    position: relative;
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    background-color: #1d05f7;
+}
+
+.reactionModalButton:hover{
+ background-color: #021bfad8;
+}
+  
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modalContent {
+    background-color: #fff;
+    padding: 20px 20px 20px 20px; /* Asegura que el padding izquierdo sea mínimo */
+    border-radius: 16px;
+    width: 90%;
+    max-width: 700px;
+    position: relative;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinea todo el contenido al borde izquierdo */
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0; /* Elimina el padding */
+    margin-bottom: 10px;
+    border-bottom: 2px solid #ccc; /* Línea de separación */
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes slideIn {
+    0% { transform: translateY(-50px); }
+    100% { transform: translateY(0); }
+}
+
+.closeModalButton {
+    position: absolute;
+    font-weight: bold;
+    top: 10px;
+    right: 10px;
+    color: rgb(122, 122, 122);
+    border: none;
+    border-radius: 10%;
+    padding: 2px;
+    cursor: pointer;
+    font-size: 24px;
+    transition: background-color 0.3s;
+}
+
+.closeModalButton:hover {
+    background-color: #ff001586;
+    color: white;
+}
+
+.modalTitle {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #010025;
+    margin: 0;
+    padding: 12px;
+    text-align: left;
+    margin-top: -10px;
+}
+
+.separatorLine {
+    position: absolute;
+    margin: 3px;
+    left: 0;
+    width: 100vw;
+    height: 1px;
+    background-color: #000000;
+}
+
+.reactions {
+    width: 100%;
+}
+
+.usersList {
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    margin-top: 5px;
 }
 
 .commentsContainer {
