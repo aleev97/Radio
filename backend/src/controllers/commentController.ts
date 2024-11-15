@@ -11,21 +11,29 @@ const CommentController = {
         try {
             const { publication_id, user_id, parent_comment_id, content } = req.body;
 
-            // Validación de datos
             if (!publication_id || !user_id || !content) {
                 return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, and content are provided.' });
             }
-            
+
             if (parent_comment_id && isNaN(parent_comment_id)) {
                 return res.status(400).json({ error: 'Invalid parent_comment_id' });
             }
 
+            // Obtener el nombre del usuario
+            const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [user_id]);
+            if (userResult.rows.length === 0) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            const username = userResult.rows[0].username;
+
+            // Insertar el comentario
             const result = await pool.query(
-                'INSERT INTO comments(publication_id, user_id, parent_comment_id, content) VALUES($1, $2, $3, $4) RETURNING *',
-                [publication_id, user_id, parent_comment_id || null, content]
+                `INSERT INTO comments(publication_id, user_id, parent_comment_id, content, username) 
+                 VALUES($1, $2, $3, $4, $5) RETURNING *`,
+                [publication_id, user_id, parent_comment_id || null, content, username]
             );
 
-            res.json(result.rows[0]);
+            res.status(201).json(result.rows[0]);
         } catch (error) {
             handleServerError(res, error);
         }
@@ -40,15 +48,38 @@ const CommentController = {
             }
 
             const result = await pool.query(
-                'SELECT * FROM comments WHERE publication_id = $1',
+                `SELECT c.id, c.publication_id, c.user_id, c.parent_comment_id, c.content, c.created_at, u.username
+                 FROM comments c
+                 INNER JOIN users u ON c.user_id = u.id
+                 WHERE c.publication_id = $1`,
                 [publicationId]
             );
 
-            res.json(result.rows);
+            const comments = result.rows;
+
+            // Organizar como árbol
+            const commentMap: { [key: number]: any } = {};
+            const tree: any[] = [];
+
+            comments.forEach((comment) => {
+                commentMap[comment.id] = { ...comment, replies: [] };
+            });
+
+            comments.forEach((comment) => {
+                if (comment.parent_comment_id) {
+                    commentMap[comment.parent_comment_id].replies.push(commentMap[comment.id]);
+                } else {
+                    tree.push(commentMap[comment.id]);
+                }
+            });
+
+            res.json(tree);
         } catch (error) {
             handleServerError(res, error);
         }
     },
+
+
 
     editComment: async (req: Request, res: Response) => {
         try {
