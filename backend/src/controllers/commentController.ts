@@ -9,35 +9,36 @@ const handleServerError = (res: Response, error: unknown) => {
 const CommentController = {
     addComment: async (req: Request, res: Response) => {
         try {
-            const { publication_id, user_id, parent_comment_id, content } = req.body;
-
-            if (!publication_id || !user_id || !content) {
-                return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, and content are provided.' });
+            const { publication_id, user_id, parent_comment_id, content, programa_id } = req.body;
+    
+            // Validar los datos requeridos
+            if (!publication_id || !user_id || !content || !programa_id) {
+                return res.status(400).json({ error: 'Invalid data. Make sure publication_id, user_id, content, and programa_id are provided.' });
             }
-
+    
             if (parent_comment_id && isNaN(parent_comment_id)) {
                 return res.status(400).json({ error: 'Invalid parent_comment_id' });
             }
-
-            // Obtener el nombre del usuario
+    
+            // Verificar existencia del usuario
             const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [user_id]);
             if (userResult.rows.length === 0) {
                 return res.status(404).json({ error: 'User not found' });
             }
             const username = userResult.rows[0].username;
-
-            // Insertar el comentario
+    
+            // Insertar el comentario incluyendo programa_id
             const result = await pool.query(
-                `INSERT INTO comments(publication_id, user_id, parent_comment_id, content, username) 
-                 VALUES($1, $2, $3, $4, $5) RETURNING *`,
-                [publication_id, user_id, parent_comment_id || null, content, username]
+                `INSERT INTO comments(publication_id, user_id, parent_comment_id, content, username, programa_id) 
+                 VALUES($1, $2, $3, $4, $5, $6) RETURNING *`,
+                [publication_id, user_id, parent_comment_id || null, content, username, programa_id]
             );
-
+    
             res.status(201).json(result.rows[0]);
         } catch (error) {
             handleServerError(res, error);
         }
-    },
+    },    
 
     getCommentsForPublication: async (req: Request, res: Response) => {
         try {

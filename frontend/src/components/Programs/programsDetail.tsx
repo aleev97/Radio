@@ -9,6 +9,7 @@ const ProgramDetail: React.FC = () => {
     const [publications, setPublications] = useState<Publication[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
+    const [showMoreComments, setShowMoreComments] = useState<{ [key: number]: boolean }>({});
     const [reactions, setReactions] = useState<{ [key: number]: Reaction[] }>({});
     const [showMoreReactions] = useState<{ [key: number]: boolean }>({});
     const [modalVisible, setModalVisible] = useState<{ [key: number]: boolean }>({});
@@ -71,6 +72,7 @@ const ProgramDetail: React.FC = () => {
     const handleCommentChange = (publicationId: number, value: string) => {
         setNewComment(prev => ({ ...prev, [publicationId]: value }));
     };
+
     const handleCommentSubmit = async (publicationId: number) => {
         const token = localStorage.getItem('token');
         const response = await fetch(`${API_BASE_URL}/publications/${publicationId}/comments`, {
@@ -100,6 +102,13 @@ const ProgramDetail: React.FC = () => {
             setPublications(updatedPublications);
             setNewComment(prev => ({ ...prev, [publicationId]: '' }));
         }
+    };
+
+    const toggleShowMoreComments = (publicationId: number) => {
+        setShowMoreComments(prev => ({
+            ...prev,
+            [publicationId]: !prev[publicationId],
+        }));
     };
 
     const countReactions = (reactions: Reaction[]) => {
@@ -339,29 +348,54 @@ const ProgramDetail: React.FC = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className={styles.comments_Container}>
-                                            <h4>Comentarios: {publication.comments?.length || 0}</h4>
-                                            {publication.comments && publication.comments.length > 0 ? (
-                                                publication.comments.map((comment) => (
-                                                    <div key={comment.id} className={styles.comment}>
-                                                        <span className={styles.commentUser}>{comment.username}</span>
-                                                        <p className={styles.commentContent}>{comment.content}</p>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <p>No hay comentarios para esta publicación.</p>
-                                            )}
-                                            <input
-                                                type="text"
-                                                value={newComment[publication.id!] || ''}
-                                                onChange={(e) => handleCommentChange(publication.id!, e.target.value)}
-                                                placeholder="Escribe un comentario..."
-                                                className={styles.commentInput}
-                                            />
-                                            <button onClick={() => handleCommentSubmit(publication.id!)} className={styles.commentSubmitButton}>
-                                                Comentar
-                                            </button>
-                                        </div>
+                                        {publication.comments && publication.comments.length > 0 && (
+                                            <div className={styles.comments_Container}>
+                                                <h4>Comentarios: {publication.comments?.length || 0}</h4>
+
+                                                {/* Si hay comentarios, mostrar uno o todos según el estado de showMoreComments */}
+                                                {publication.comments.length > 0 ? (
+                                                    showMoreComments[publication.id!] ? (
+                                                        // Mostrar todos los comentarios si `showMoreComments` es true
+                                                        publication.comments.map((comment) => (
+                                                            <div key={comment.id} className={styles.comment}>
+                                                                <span className={styles.commentUser}>{comment.username}</span>
+                                                                <p className={styles.commentContent}>{comment.content}</p>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        // Mostrar solo el primer comentario si `showMoreComments` es false
+                                                        <div className={styles.comment}>
+                                                            <span className={styles.commentUser}>{publication.comments[0].username}</span>
+                                                            <p className={styles.commentContent}>{publication.comments[0].content}</p>
+                                                        </div>
+                                                    )
+                                                ) : (
+                                                    <p className={styles.noComments}>No hay comentarios aún.</p>
+                                                )}
+
+                                                {/* Solo mostrar el botón si hay más de un comentario */}
+                                                {publication.comments.length > 1 && (
+                                                    <button
+                                                        className={styles.toggleCommentsButton}
+                                                        onClick={() => toggleShowMoreComments(publication.id!)}
+                                                    >
+                                                        {showMoreComments[publication.id!] ? 'Mostrar menos' : 'Mostrar más'}
+                                                    </button>
+                                                )}
+
+                                                <input
+                                                    type="text"
+                                                    value={newComment[publication.id!] || ''}
+                                                    onChange={(e) => handleCommentChange(publication.id!, e.target.value)}
+                                                    placeholder="Escribe un comentario..."
+                                                    className={styles.commentInput}
+                                                />
+                                                <button onClick={() => handleCommentSubmit(publication.id!)} className={styles.commentSubmitButton}>
+                                                    Comentar
+                                                </button>
+                                            </div>
+                                        )}
+
                                     </div>
                                 );
                             })
