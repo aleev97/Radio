@@ -80,36 +80,35 @@ const CommentController = {
         }
     },
 
-
-
     editComment: async (req: Request, res: Response) => {
         try {
             const commentId = parseInt(req.params.id, 10);
             const { content } = req.body;
-
+    
             if (isNaN(commentId)) {
                 return res.status(400).json({ error: 'Invalid comment_id' });
             }
-
+    
             const existingComment = await pool.query(
                 'SELECT * FROM comments WHERE id = $1',
                 [commentId]
             );
-
+    
             if (existingComment.rows.length === 0) {
                 return res.status(404).json({ error: 'Comment not found' });
             }
-
+    
+            // Actualización de contenido y actualización de la fecha `updated_at`
             const result = await pool.query(
-                'UPDATE comments SET content = $1 WHERE id = $2 RETURNING *',
+                'UPDATE comments SET content = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
                 [content, commentId]
             );
-
+    
             res.json(result.rows[0]);
         } catch (error) {
             handleServerError(res, error);
         }
-    },
+    },    
 
     deleteComment: async (req: Request, res: Response) => {
         try {

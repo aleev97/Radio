@@ -6,5 +6,6 @@ export interface Comment {
     parent_comment_id?: number;
     content: string;
     created_at?: Date;
+    updated_at?:Date
     programa_id?: number;
 }

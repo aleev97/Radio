@@ -18,6 +18,7 @@ export interface Comment {
   parent_comment_id?: number;
   content: string;
   created_at?: Date;
+  update_at?:Date;
   programa_id?: number;
 }
 
