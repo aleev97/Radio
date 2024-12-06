@@ -414,120 +414,95 @@ const ProgramDetail: React.FC = () => {
                                             )}
                                         </div>
                                         {publication.comments && publication.comments.length > 0 && (
-                                            <div className={styles.comments_Container}>
-                                                <h4>Comentarios: {publication.comments.length}</h4>
+  <div className={styles.comments_Container}>
+    <h4>Comentarios: {publication.comments.length}</h4>
 
-                                                {showMoreComments[publication.id!] ? (
-                                                    publication.comments.map((comment) => (
-                                                        <div key={comment.id} className={styles.comment}>
-                                                            <span className={styles.commentUser}>{comment.username}</span>
-                                                            {editingComment?.id === comment.id ? (
-                                                                <div className={styles.editCommentContainer}>
-                                                                    <input
-                                                                        type="text"
-                                                                        value={editingComment?.content || ''}
-                                                                        onChange={(e) =>
-                                                                            editingComment &&
-                                                                            setEditingComment({ ...editingComment, content: e.target.value })
-                                                                        }
-                                                                        className={styles.commentEditInput}
-                                                                    />
-                                                                    <div className={styles.editActions}>
-                                                                        <button
-                                                                            className={styles.saveButton}
-                                                                            onClick={() =>
-                                                                                handleCommentEdit(editingComment?.id, editingComment?.content, publication.id!)
-                                                                            }
-                                                                        >
-                                                                            Guardar
-                                                                        </button>
-                                                                        <button
-                                                                            className={styles.cancelButton}
-                                                                            onClick={() => setEditingComment(null)}
-                                                                        >
-                                                                            Cancelar
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            ) : (
-                                                                <p className={styles.commentContent}>{comment.content}</p>
-                                                            )}
+    {/* Mostrar todos los comentarios o solo el primero si "mostrar más" está activo */}
+    {(showMoreComments[publication.id!] ? publication.comments : publication.comments.slice(0, 1)).map((comment) => (
+      <div key={comment.id} className={styles.comment}>
+        <span className={styles.commentUser}>{comment.username}</span>
 
-                                                            <div className={styles.commentActions}>
-                                                                <button
-                                                                    className={styles.editButton}
-                                                                    onClick={() =>
-                                                                        setEditingComment({ id: comment.id!, content: comment.content })
-                                                                    }
-                                                                >
-                                                                    Editar
-                                                                </button>
-                                                                <button
-                                                                    className={styles.deleteButton}
-                                                                    onClick={() => handleCommentDelete(comment.id!, publication.id!)}
-                                                                >
-                                                                    Eliminar
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    publication.comments[0] && (
-                                                        <div className={styles.comment}>
-                                                            <span className={styles.commentUser}>{publication.comments[0].username}</span>
-                                                            <p className={styles.commentContent}>{publication.comments[0].content}</p>
+        {/* Mostrar el campo de edición solo si este comentario está siendo editado */}
+        {editingComment?.id === comment.id ? (
+          <div className={styles.editCommentContainer}>
+            <input
+              type="text"
+              value={editingComment?.content || ''}
+              onChange={(e) =>
+                editingComment &&
+                setEditingComment({ ...editingComment, content: e.target.value })
+              }
+              className={styles.commentEditInput}
+            />
+            <div className={styles.editActions}>
+              <button
+                className={styles.saveButton}
+                onClick={() => handleCommentEdit(editingComment?.id, editingComment?.content, publication.id!)}
+              >
+                Guardar
+              </button>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setEditingComment(null)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className={styles.commentContent}>{comment.content}</p>
+        )}
 
-                                                            <div className={styles.commentActions}>
-                                                                <button
-                                                                    className={styles.editButton}
-                                                                    onClick={() =>
-                                                                        publication.comments &&
-                                                                        publication.comments[0] &&
-                                                                        setEditingComment({
-                                                                            id: publication.comments[0].id!,
-                                                                            content: publication.comments[0].content,
-                                                                        })
-                                                                    }
-                                                                >
-                                                                    Editar
-                                                                </button>
-                                                                <button
-                                                                    className={styles.deleteButton}
-                                                                    onClick={() =>
-                                                                        publication.comments &&
-                                                                        publication.comments[0] &&
-                                                                        handleCommentDelete(publication.comments[0].id!, publication.id!)
-                                                                    }
-                                                                >
-                                                                    Eliminar
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                )}
-                                                {publication.comments.length > 1 && (
-                                                    <button
-                                                        className={styles.toggleCommentsButton}
-                                                        onClick={() => toggleShowMoreComments(publication.id!)}
-                                                    >
-                                                        {showMoreComments[publication.id!] ? 'menos 💬' : 'más 💬'}
-                                                    </button>
-                                                )}
-                                                <input
-                                                    type="text"
-                                                    value={newComment[publication.id!] || ''}
-                                                    onChange={(e) => handleCommentChange(publication.id!, e.target.value)}
-                                                    placeholder="Escribe un comentario..."
-                                                    className={styles.commentInput}
-                                                />
-                                                <button
-                                                    onClick={() => handleCommentSubmit(publication.id!)}
-                                                    className={styles.commentSubmitButton}
-                                                >
-                                                    Comentar
-                                                </button>
-                                            </div>
-                                        )}
+        {/* Botones de acción (Editar, Eliminar) siempre visibles */}
+        <div className={styles.commentActions}>
+          <button
+            className={styles.editButton}
+            onClick={() =>
+              setEditingComment({
+                id: comment.id!,
+                content: comment.content,
+              })
+            }
+          >
+            Editar
+          </button>
+          <button
+            className={styles.deleteButton}
+            onClick={() => handleCommentDelete(comment.id!, publication.id!)}
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    ))}
+
+    {/* Mostrar el botón para "más" comentarios solo si hay más de un comentario */}
+    {publication.comments.length > 1 && (
+      <button
+        className={styles.toggleCommentsButton}
+        onClick={() => toggleShowMoreComments(publication.id!)}
+      >
+        {showMoreComments[publication.id!] ? 'menos 💬' : 'más 💬'}
+      </button>
+    )}
+
+    {/* Campo de texto para agregar un nuevo comentario */}
+    <input
+      type="text"
+      value={newComment[publication.id!] || ''}
+      onChange={(e) => handleCommentChange(publication.id!, e.target.value)}
+      placeholder="Escribe un comentario..."
+      className={styles.commentInput}
+    />
+    <button
+      onClick={() => handleCommentSubmit(publication.id!)}
+      className={styles.commentSubmitButton}
+    >
+      Comentar
+    </button>
+  </div>
+)}
+
                                     </div>
                                 );
                             })
