@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProgramData } from '../../types';
-import styles from './programs.module.css';
+import styles from './program.module.css';
 
 const Program: React.FC = () => {
     const [programs, setPrograms] = useState<ProgramData[]>([]);
@@ -44,7 +44,7 @@ const Program: React.FC = () => {
 
     return (
         <div className={styles.programContainer}>
-            <h2 className={styles.title}>Nuestros Programas</h2>
+            <h2 className={styles.titulo}>Nuestros Programas</h2>
             <div className={styles.programGrid}>
                 {programs.map((program) => ( 
                     <div
@@ -53,7 +53,7 @@ const Program: React.FC = () => {
                         onClick={() => handleProgramSelect(program.id)}
                     >
                         <div className={styles.programInfo}>
-                            <h3 className={styles.programTitle}>{program.titulo}</h3>
+                            <h3 className={styles.programTitulo}>{program.titulo}</h3>
                         </div>
                     </div>
                 ))}
