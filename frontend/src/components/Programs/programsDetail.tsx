@@ -67,7 +67,6 @@ const ProgramDetail: React.FC = () => {
                 }
             }
         };
-
         Promise.all([fetchProgramDetails(), fetchPublications()]);
     }, [programId, API_BASE_URL]);
 
@@ -76,33 +75,30 @@ const ProgramDetail: React.FC = () => {
     };
 
     const handleCommentSubmit = async (publicationId: number) => {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/publications/${publicationId}/comments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ content: newComment[publicationId] }),
-        });
-        if (response.ok) {
-            const updatedPublications = publications.map(pub => {
-                if (pub.id === publicationId) {
-                    const newCommentObj: Comment = {
-                        publication_id: pub.id!,
-                        user_id: 1,
-                        content: newComment[publicationId],
-                        created_at: new Date(),
-                    };
-                    return {
-                        ...pub,
-                        comments: [...(pub.comments || []), newCommentObj]
-                    };
-                }
-                return pub;
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/publications/${publicationId}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ content: newComment[publicationId] }),
             });
-            setPublications(updatedPublications);
-            setNewComment(prev => ({ ...prev, [publicationId]: '' }));
+
+            if (response.ok) {
+                const updatedPublications = publications.map(pub => {
+                    if (pub.id === publicationId) {
+                        const newCommentObj: Comment = { publication_id: pub.id!, user_id: 1, content: newComment[publicationId], created_at: new Date() };
+                        return { ...pub, comments: [...(pub.comments || []), newCommentObj] };
+                    }
+                    return pub;
+                });
+                setPublications(updatedPublications);
+                setNewComment(prev => ({ ...prev, [publicationId]: '' }));
+            } else {
+                setError('Error al agregar el comentario');
+            }
+        } catch (error) {
+            console.error('Error al agregar el comentario:', error);
+            setError('Error al agregar el comentario. Inténtelo de nuevo más tarde.');
         }
     };
 

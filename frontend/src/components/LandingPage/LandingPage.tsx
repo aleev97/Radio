@@ -1,87 +1,72 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../Redux/store";
+import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-import { Errors, RegisterForm, LoginForm } from "../../types";
-import styles from './landingpage.module.css';
-import validate from './validate';
-import axios from 'axios';
+import { registerUser, loginUser, setMessage, clearForm, setLoginForm, setRegisterForm } from "../../Redux/Actions/userActions";
+import { RootState } from "../../Redux/store";
+import styles from "./landingpage.module.css";
+import validate from "./validate";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const dispatch = useDispatch<AppDispatch>();
+  const { registerForm, loginForm, message, authError, loading } = useSelector(
+    (state: RootState) => state.user
+  );
 
-  const [registerForm, setRegisterForm] = useState<RegisterForm>({ username: "", email: "", password: "", isadmin: false });
-  const [loginForm, setLoginForm] = useState<LoginForm>({ username: "", password: "" });
   const [isadminChecked, setIsadminChecked] = useState(false);
   const [showPassword, setShowPassword] = useState({ register: false, login: false });
   const [loginFormVisible, setLoginFormVisible] = useState(true);
-  const [registerErrors, setRegisterErrors] = useState<Errors>({});
-  const [message, setMessage] = useState<string>("");
-  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [registerErrors, setRegisterErrors] = useState<{ [key: string]: string }>({});
+  const [typingTimeout, setTypingTimeout] = useState<number | null>(null);
 
   useEffect(() => {
+    const handleResize = () => {
+      const isWideScreen = window.innerWidth > 850;
+      setShowPassword({ register: isWideScreen, login: isWideScreen });
+    };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleResize = () => {
-    const isWideScreen = window.innerWidth > 850;
-    setShowPassword({ register: isWideScreen, login: isWideScreen });
+  const handleToggleShowPassword = (formType: "register" | "login") => {
+    setShowPassword(prevState => ({ ...prevState, [formType]: !prevState[formType] }));
   };
 
-  const handleToggleShowPassword = (formType: "register" | "login") => {
-    setShowPassword((prevState) => ({ ...prevState, [formType]: !prevState[formType] }));
-  };
+  const handleFormSwitch = (toLogin: boolean) => setLoginFormVisible(toLogin);
 
   const handleFormChange = (formType: "login" | "register") => (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    const action = formType === "login" ? setLoginForm : setRegisterForm;
+    dispatch(action({
+      ...formType === "login" ? loginForm : registerForm, [name]: value,
+      email: "",
+      isadmin: false
+    }));
 
-    if (formType === "login") {
-      setLoginForm((prevState) => ({ ...prevState, [name]: value }));
-    } else {
-      setRegisterForm((prevState) => ({ ...prevState, [name]: value }));
-
-      if (typingTimeout) clearTimeout(typingTimeout);
-
-      const timeout = setTimeout(() => {
-        if (value.trim()) {
-          const validationErrors = validate({ ...registerForm, [name]: value });
-          setRegisterErrors((prevErrors) => ({ ...prevErrors, [name]: validationErrors[name] || "" }));
-        } else {
-          setRegisterErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-        }
-      }, 300);
-
-      setTypingTimeout(timeout);
+    if (formType === "register") {
+      validateAndSetErrors(name, value);
     }
   };
 
-  const handleFormSwitch = (toLogin: boolean) => {
-    setLoginFormVisible(toLogin);
-  };
-
-  const clearForm = (formType: "login" | "register") => {
-    if (formType === "login") {
-      setLoginForm({ username: "", password: "" });
-    } else {
-      setRegisterForm({ username: "", email: "", password: "", isadmin: false });
-      setIsadminChecked(false);
-    }
+  const validateAndSetErrors = (name: string, value: string) => {
+    if (typingTimeout) clearTimeout(typingTimeout);
+    const timeout = window.setTimeout(() => {
+      const validationErrors = validate({ ...registerForm, [name]: value });
+      setRegisterErrors(prevErrors => ({ ...prevErrors, [name]: validationErrors[name] || "" }));
+    }, 300);
+    setTypingTimeout(timeout);
   };
 
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(registerForm);
     if (Object.keys(validationErrors).length === 0) {
-      try {
-        const response = await axios.post(`${API_BASE_URL}/users/register`, { ...registerForm, isadmin: isadminChecked });
-        console.log("Datos de respuesta del backend al registrarse:", response.data); // Imprimir datos de registro en la consola
-        setMessage("Usuario registrado exitosamente");
-        clearForm("register");
-      } catch (error) {
-        console.log("Error al registrarse:", error); // Imprimir error en la consola
-        setMessage("Error al registrar usuario");
-      }
+      dispatch(registerUser({ ...registerForm, isadmin: isadminChecked }));
+      dispatch(setMessage("Registro exitoso. ¡Bienvenido!"));
+      dispatch(clearForm("register"));
     } else {
       setRegisterErrors(validationErrors);
     }
@@ -90,22 +75,13 @@ const LandingPage: React.FC = () => {
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE_URL}/users/login`, loginForm);
-      console.log("Datos de respuesta del backend al iniciar sesión:", response.data); // Imprimir datos de inicio de sesión en la consola
-      const { token } = response.data;
-
-      // Guardar el token en localStorage
-      localStorage.setItem("token", token);
-      setMessage("Usuario autenticado exitosamente");
-      clearForm("login");
-      navigate("/home");
+      await dispatch(loginUser(loginForm));
+      navigate('/home');
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        console.log("Error de respuesta del backend:", error.response.data); // Imprimir error de respuesta en la consola
-        setMessage(error.response.data.message || "Error al iniciar sesión");
+      if (error instanceof AxiosError) {
+        console.error(error.message);
       } else {
-        console.log("Error en la solicitud:", error); // Imprimir cualquier otro error en la consola
-        setMessage("Error al iniciar sesión");
+        console.error("Error desconocido", error);
       }
     }
   };
@@ -126,13 +102,15 @@ const LandingPage: React.FC = () => {
             <button onClick={() => handleFormSwitch(false)}>Registrarse</button>
           </div>
         </div>
-        <div className={styles.container_formularios} style={{ left: `${loginFormVisible ? 0 : 33}%` }}>
+        <div
+          className={styles.container_formularios}
+          style={{ left: `${loginFormVisible ? 0 : 33}%` }}
+        >
           <form
             className={`${styles.container_formularios} ${loginFormVisible ? styles.Formulario_login : styles.Formulario_register}`}
             onSubmit={loginFormVisible ? handleLoginSubmit : handleRegisterSubmit}
           >
             <h2>{loginFormVisible ? "Iniciar sesión" : "Registrarse"}</h2>
-
             <input
               type="text"
               name="username"
@@ -141,15 +119,14 @@ const LandingPage: React.FC = () => {
               onChange={handleFormChange(loginFormVisible ? "login" : "register")}
             />
             {!loginFormVisible && registerErrors.username && <p className={styles.error}>{registerErrors.username}</p>}
-
             {loginFormVisible ? (
               <div className={styles.passwordInputContainer}>
                 <input
-                  type={showPassword.login ? "password" : "text"} // Cambié aquí para mostrar la contraseña cuando se selecciona el botón
+                  type={showPassword.login ? "password" : "text"}
                   name="password"
                   placeholder="Contraseña"
                   value={loginForm.password}
-                  onChange={handleFormChange('login')}
+                  onChange={handleFormChange("login")}
                   className={styles.passwordInput}
                 />
                 <button
@@ -167,16 +144,16 @@ const LandingPage: React.FC = () => {
                   name="email"
                   placeholder="Correo electrónico"
                   value={registerForm.email}
-                  onChange={handleFormChange('register')}
+                  onChange={handleFormChange("register")}
                 />
                 {!loginFormVisible && registerErrors.email && <p className={styles.error}>{registerErrors.email}</p>}
                 <div className={styles.passwordInputContainer}>
                   <input
-                    type={showPassword.register ? "password" : "text"} // Cambié aquí para mostrar la contraseña cuando se selecciona el botón
+                    type={showPassword.register ? "password" : "text"}
                     name="password"
                     placeholder="Contraseña"
                     value={registerForm.password}
-                    onChange={handleFormChange('register')}
+                    onChange={handleFormChange("register")}
                     className={styles.passwordInput}
                   />
                   <button
@@ -199,12 +176,11 @@ const LandingPage: React.FC = () => {
                 </label>
               </>
             )}
-
             <button className={styles.Button_RegisterInicio} type="submit">
               <p className={styles.text_button}>{loginFormVisible ? "Entrar" : "Registrarse"}</p>
             </button>
-
-            <p className={styles.mensaje}>{message}</p>
+            <p className={styles.mensaje}>{message || authError}</p>
+            {loading && <p className={styles.loading}>Cargando...</p>}
           </form>
         </div>
       </div>
