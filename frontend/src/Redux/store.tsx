@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "./Reducers/userReducers"; // Assuming this is the correct file for the user reducer
+import userReducer from "./Reducers/userReducers";
+import programReducer from "./Reducers/programsReducers";
 
 const store = configureStore({
   reducer: {
-    user: userReducer,  // Use the default export as the reducer
+    user: userReducer,
+    program: programReducer, // Asegúrate de que `programReducer` esté correctamente tipado
   },
 });
 

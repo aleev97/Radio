@@ -1,3 +1,5 @@
+import { FETCH_PROGRAMS_FAILURE, FETCH_PROGRAMS_REQUEST, FETCH_PROGRAMS_SUCCESS } from "components/Programs/constants/programConstants";
+
 export interface Errors {
   [key: string]: string;
 }
@@ -78,3 +80,27 @@ export interface UserState {
   userData: UserData | null; 
   loading: boolean; 
 }
+export interface ProgramState {
+  loading: boolean;
+  programs: ProgramData[];
+  error: string | null;
+}
+
+export interface FetchProgramsRequestAction {
+  type: typeof FETCH_PROGRAMS_REQUEST;
+}
+
+export interface FetchProgramsSuccessAction {
+  type: typeof FETCH_PROGRAMS_SUCCESS;
+  payload: ProgramData[]; // Asegúrate de que `payload` tenga el tipo correcto
+}
+
+export interface FetchProgramsFailureAction {
+  type: typeof FETCH_PROGRAMS_FAILURE;
+  payload: string; // Error en formato string
+}
+
+export type ProgramActions =
+  | { type: 'program/setPrograms'; payload: ProgramData[] }
+  | { type: 'program/clearPrograms' }
+  | { type: 'program/setError'; payload: string };

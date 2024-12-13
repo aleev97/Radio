@@ -1,52 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { ProgramData } from '../../types';
+import { fetchPrograms } from '../../Redux/Reducers/programsReducers';
+import { RootState, AppDispatch } from '../../Redux/store'; 
 import styles from './program.module.css';
 
 const Program: React.FC = () => {
-    const [programs, setPrograms] = useState<ProgramData[]>([]);
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+    const { programs, loading, error } = useSelector((state: RootState) => state.program);
 
     useEffect(() => {
-        const fetchPrograms = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    throw new Error('No token found');
-                }
-                const response = await fetch(`${API_BASE_URL}/programs`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.status} ${response.statusText}`);
-                }
-                const data: ProgramData[] = await response.json();
-                setPrograms(data);
-            } catch (error) {
-                if (error instanceof Error) {
-                    console.error('Error fetching programs:', error.message);
-                } else {
-                    console.error('Unexpected error:', error);
-                }
-            }
-        };
-
-        fetchPrograms();
-    }, [API_BASE_URL]);
+        dispatch(fetchPrograms());
+    }, [dispatch]);
 
     const handleProgramSelect = (programId: number) => {
         navigate(`/programas/${programId}`);
     };
 
+    const isLoading = loading;
+    const hasError = error;
+
     return (
         <div className={styles.programContainer}>
             <h2 className={styles.titulo}>Nuestros Programas</h2>
+            {isLoading && <p>Cargando programas...</p>}
+            {hasError && <p className={styles.error}>Error: {hasError}</p>}
             <div className={styles.programGrid}>
-                {programs.map((program) => ( 
+                {programs.map((program) => (
                     <div
                         key={program.id}
                         className={`${styles.programCard} ${styles[`programCard_${program.id}`]}`}
